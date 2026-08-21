@@ -1,0 +1,429 @@
+/* register.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  }
+
+body {
+min-height: 100vh;
+background: #f6f7fb;
+color: #1f2937;
+}
+
+.register-page {
+min-height: 100vh;
+display: flex;
+}
+
+/* =========================
+LEFT INTRO SECTION
+========================= */
+
+.intro-section {
+width: 52%;
+min-height: 100vh;
+padding: 42px 7%;
+background: linear-gradient(135deg, #3730a3, #5b21b6, #7c3aed);
+color: white;
+position: relative;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+}
+
+.intro-section::before {
+content: "";
+position: absolute;
+width: 420px;
+height: 420px;
+border: 80px solid rgba(255,255,255,0.05);
+border-radius: 50%;
+right: -180px;
+top: -130px;
+}
+
+.intro-section::after {
+content: "";
+position: absolute;
+width: 350px;
+height: 350px;
+border: 60px solid rgba(255,255,255,0.04);
+border-radius: 50%;
+left: -180px;
+bottom: -150px;
+}
+
+/* Brand */
+
+.brand {
+display: flex;
+align-items: center;
+gap: 12px;
+position: relative;
+z-index: 2;
+}
+
+.brand-icon {
+width: 45px;
+height: 45px;
+border-radius: 12px;
+background: rgba(255,255,255,0.15);
+border: 1px solid rgba(255,255,255,0.2);
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 15px;
+font-weight: 800;
+}
+
+.brand h2 {
+font-size: 21px;
+letter-spacing: -0.5px;
+}
+
+.brand h2 span {
+color: #ddd6fe;
+}
+
+.brand p {
+color: #ddd6fe;
+font-size: 11px;
+margin-top: 3px;
+}
+
+/* Intro Content */
+
+.intro-content {
+max-width: 570px;
+margin: auto 0;
+position: relative;
+z-index: 2;
+}
+
+.ai-badge {
+display: inline-block;
+padding: 7px 12px;
+border-radius: 20px;
+background: rgba(255,255,255,0.12);
+border: 1px solid rgba(255,255,255,0.12);
+color: #ede9fe;
+font-size: 10px;
+font-weight: 800;
+letter-spacing: 1px;
+margin-bottom: 20px;
+}
+
+.intro-content h1 {
+font-size: clamp(38px, 4vw, 58px);
+line-height: 1.05;
+letter-spacing: -2px;
+margin-bottom: 20px;
+}
+
+.intro-content h1 span {
+color: #c4b5fd;
+}
+
+.intro-content > p {
+max-width: 500px;
+color: #ddd6fe;
+line-height: 1.7;
+font-size: 14px;
+margin-bottom: 35px;
+}
+
+/* Features */
+
+.features {
+display: flex;
+flex-direction: column;
+gap: 14px;
+}
+
+.feature {
+display: flex;
+align-items: center;
+gap: 13px;
+}
+
+.feature-icon {
+width: 42px;
+height: 42px;
+flex-shrink: 0;
+border-radius: 10px;
+background: rgba(255,255,255,0.1);
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.feature strong {
+display: block;
+font-size: 13px;
+margin-bottom: 3px;
+}
+
+.feature p {
+color: #c4b5fd;
+font-size: 11px;
+}
+
+/* Footer */
+
+.intro-footer {
+position: relative;
+z-index: 2;
+color: #c4b5fd;
+font-size: 10px;
+}
+
+/* =========================
+REGISTER SECTION
+========================= */
+
+.register-section {
+width: 48%;
+min-height: 100vh;
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 40px;
+background: #f8f9fc;
+}
+
+.register-card {
+width: 100%;
+max-width: 450px;
+background: white;
+border: 1px solid #e7e9ef;
+border-radius: 20px;
+padding: 38px;
+box-shadow: 0 15px 45px rgba(17,24,39,0.07);
+}
+
+/* Mobile Logo */
+
+.mobile-logo {
+display: none;
+}
+
+/* Form Header */
+
+.form-header {
+margin-bottom: 25px;
+}
+
+.form-badge {
+color: #6366f1;
+font-size: 10px;
+font-weight: 800;
+letter-spacing: 1.2px;
+}
+
+.form-header h1 {
+font-size: 30px;
+color: #111827;
+margin-top: 7px;
+margin-bottom: 7px;
+}
+
+.form-header p {
+color: #9ca3af;
+font-size: 13px;
+line-height: 1.5;
+}
+
+/* =========================
+DJANGO FORM
+========================= */
+
+.django-form p {
+margin-bottom: 17px;
+}
+
+.django-form label {
+display: block;
+color: #374151;
+font-size: 12px;
+font-weight: 600;
+margin-bottom: 7px;
+}
+
+.django-form input,
+.django-form select,
+.django-form textarea {
+width: 100%;
+padding: 12px 13px;
+border: 1px solid #dfe2e8;
+border-radius: 9px;
+background: #fafbfc;
+color: #1f2937;
+font-size: 13px;
+outline: none;
+transition: 0.2s;
+}
+
+.django-form input:focus,
+.django-form select:focus,
+.django-form textarea:focus {
+border-color: #6366f1;
+background: white;
+box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+.django-form ul {
+padding-left: 18px;
+margin-top: 6px;
+color: #ef4444;
+font-size: 10px;
+}
+
+.django-form .helptext {
+display: block;
+color: #9ca3af;
+font-size: 10px;
+margin-top: 5px;
+line-height: 1.4;
+}
+
+/* =========================
+REGISTER BUTTON
+========================= */
+
+.register-btn {
+width: 100%;
+border: none;
+border-radius: 9px;
+padding: 13px 16px;
+background: linear-gradient(90deg, #4f46e5, #7c3aed);
+color: white;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: space-between;
+font-size: 13px;
+font-weight: 700;
+transition: 0.25s;
+box-shadow: 0 8px 18px rgba(79,70,229,0.2);
+}
+
+.register-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 12px 24px rgba(79,70,229,0.3);
+}
+
+.register-btn strong {
+font-size: 18px;
+}
+
+/* Login Link */
+
+.login-link {
+text-align: center;
+margin-top: 22px;
+font-size: 12px;
+color: #9ca3af;
+}
+
+.login-link a {
+color: #4f46e5;
+font-weight: 700;
+margin-left: 4px;
+}
+
+.login-link a:hover {
+text-decoration: underline;
+}
+
+/* =========================
+RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+
+.intro-section {
+    width: 45%;
+    padding: 35px;
+}
+
+.register-section {
+    width: 55%;
+    padding: 25px;
+}
+
+.intro-content h1 {
+    font-size: 40px;
+}
+
+
+}
+
+@media (max-width: 700px) {
+
+
+.register-page {
+    display: block;
+}
+
+.intro-section {
+    display: none;
+}
+
+.register-section {
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.register-card {
+    max-width: 500px;
+    padding: 30px 25px;
+}
+
+.mobile-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.mobile-logo .brand-icon {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+}
+
+.mobile-logo h2 {
+    font-size: 20px;
+}
+
+.mobile-logo h2 span {
+    color: #6366f1;
+}
+
+
+}
+
+@media (max-width: 400px) {
+
+
+.register-card {
+    border: none;
+    box-shadow: none;
+    padding: 20px 5px;
+}
+
+.register-section {
+    background: white;
+}
+
+.form-header h1 {
+    font-size: 27px;
+}
+
+
+}

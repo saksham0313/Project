@@ -1,0 +1,715 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    
+    <title>AI Interview | CareerAI</title>
+    
+    <link rel="stylesheet" href="/static/users/ai_interview.css?v=2">
+
+</head>
+
+<body class="dark-theme">
+
+    
+
+    <body>
+
+<script>
+    const savedTheme = "{{ user_settings.theme }}";
+
+    function applyInterviewTheme(theme) {
+        if (theme === "dark") {
+            document.body.classList.add("dark-mode");
+        } else if (theme === "light") {
+            document.body.classList.remove("dark-mode");
+        } else {
+            const prefersDark = window.matchMedia(
+                "(prefers-color-scheme: dark)"
+            ).matches;
+
+            document.body.classList.toggle(
+                "dark-mode",
+                prefersDark
+            );
+        }
+    }
+
+    applyInterviewTheme(savedTheme);
+
+    const systemTheme = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+    );
+
+    systemTheme.addEventListener("change", function () {
+        if (savedTheme === "system") {
+            applyInterviewTheme("system");
+        }
+    });
+</script>
+    
+
+<div class="interview-page">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                AI
+            </div>
+
+            <div>
+                <h2>
+                    Career<span>AI</span>
+                </h2>
+
+                <p>
+                    AI Career Guidance
+                </p>
+            </div>
+
+        </div>
+
+
+        <nav class="navigation">
+
+            <a
+                href="{% url 'dashboard' %}"
+                class="nav-item"
+            >
+                <span>⌂</span>
+                Dashboard
+            </a>
+
+
+            <a
+                href="{% url 'upload_resume' %}"
+                class="nav-item"
+            >
+                <span>📄</span>
+                Resume
+            </a>
+
+
+            <a
+                href="{% url 'ai_interview' %}"
+                class="nav-item active"
+            >
+                <span>🎤</span>
+                AI Interview
+            </a>
+
+
+            <a
+                href="#"
+                class="nav-item"
+            >
+                <span>📊</span>
+                Performance
+            </a>
+
+
+            <a
+                href="#"
+                class="nav-item"
+            >
+                <span>💡</span>
+                Career Guidance
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a
+                href="{% url 'settings' %}"
+                class="nav-item"
+            >
+                <span>⚙</span>
+                Settings
+            </a>
+
+
+            <a
+                href="{% url 'logout' %}"
+                class="logout"
+            >
+                <span>↪</span>
+                Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <p class="welcome-small">
+                    AI POWERED INTERVIEW
+                </p>
+
+                <h1>
+                    AI Interview
+                </h1>
+
+            </div>
+
+
+            <div class="profile">
+
+                <div class="avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+
+                <div class="profile-info">
+
+                    <strong>
+                        {{ request.user.username }}
+                    </strong>
+
+                    <span>
+                        Career Explorer
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- HERO -->
+
+        <section class="interview-hero">
+
+            <div>
+
+                <span class="hero-badge">
+                    ✦ AI INTERVIEW PRACTICE
+                </span>
+
+                <h2>
+                    Practice smarter.<br>
+                    Interview with confidence.
+                </h2>
+
+                <p>
+                    Improve your interview skills with
+                    realistic questions designed to help
+                    you prepare for your next opportunity.
+                </p>
+
+            </div>
+
+
+            <div class="hero-icon">
+                🎤
+            </div>
+
+        </section>
+
+
+        <!-- INTERVIEW AREA -->
+
+        <section class="interview-layout">
+
+
+            <!-- SETUP CARD -->
+
+            <div class="setup-card">
+
+                <div class="section-title">
+
+                    <span class="title-icon">
+                        ⚙
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Interview Setup
+                        </h3>
+
+                        <p>
+                            Configure your practice session.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="setting">
+
+    <label>
+        Target Role
+    </label>
+
+    <select
+        id="target-role"
+        onchange="changeRole(this.value)"
+    >
+
+        <option value="Software Developer">
+            Software Developer
+        </option>
+
+        <option value="Web Developer">
+            Web Developer
+        </option>
+
+        <option value="Data Analyst">
+            Data Analyst
+        </option>
+
+        <option value="AI / ML Engineer">
+            AI / ML Engineer
+        </option>
+
+    </select>
+
+</div>
+
+
+                <div class="setting">
+
+    <label>
+        Difficulty
+    </label>
+
+    <div class="difficulty-options">
+
+        <button
+            type="button"
+            class="difficulty active"
+            data-difficulty="easy"
+            onclick="changeDifficulty('easy')"
+        >
+            Easy
+        </button>
+
+        <button
+            type="button"
+            class="difficulty"
+            data-difficulty="medium"
+            onclick="changeDifficulty('medium')"
+        >
+            Medium
+        </button>
+
+        <button
+            type="button"
+            class="difficulty"
+            data-difficulty="hard"
+            onclick="changeDifficulty('hard')"
+        >
+            Hard
+        </button>
+
+    </div>
+
+</div>
+
+
+                <div class="setting">
+
+                    <label>
+                        Interview Type
+                    </label>
+
+                    <select>
+
+                        <option>
+                            General Interview
+                        </option>
+
+                        <option>
+                            Technical Interview
+                        </option>
+
+                        <option>
+                            Behavioral Interview
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="interview-info">
+
+                    <div>
+                        <span>Questions</span>
+                        <strong>5</strong>
+                    </div>
+
+                    <div>
+                        <span>Estimated Time</span>
+                        <strong>10 min</strong>
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="start-btn"
+                    onclick="startInterview()"
+                >
+                    Start Interview
+                    <span>→</span>
+                </button>
+
+            </div>
+
+
+            <!-- QUESTION CARD -->
+
+            <div class="question-card">
+
+    <div class="question-header">
+
+        <div>
+            <span class="question-label">
+                QUESTION
+            </span>
+
+            <h3 id="question-number">
+                Question 1 of 5
+            </h3>
+        </div>
+
+        <div class="question-type">
+            General
+        </div>
+
+    </div>
+
+    <div class="progress-bar">
+        <div
+            class="progress-fill"
+            id="progress-fill"
+        ></div>
+    </div>
+
+    <div class="question-content">
+
+        <div class="ai-question-icon">
+            ✦
+        </div>
+
+        <h2 id="question-text">
+            Tell me about yourself and your career goals.
+        </h2>
+
+        <p>
+            Take your time and answer naturally.
+        </p>
+
+    </div>
+
+    <textarea
+        id="answer"
+        placeholder="Type your answer here..."
+    ></textarea>
+
+    <div class="question-actions">
+
+        <button
+            type="button"
+            class="secondary-btn"
+            onclick="previousQuestion()"
+        >
+            ← Previous
+        </button>
+
+        <button
+            type="button"
+            class="next-btn"
+            onclick="nextQuestion()"
+        >
+            Next Question →
+        </button>
+
+    </div>
+
+</div>
+
+        </section>
+
+
+        <!-- TIPS -->
+
+        <section class="interview-tip">
+
+            <div class="tip-icon">
+                💡
+            </div>
+
+            <div>
+
+                <strong>
+                    Interview Tip
+                </strong>
+
+                <p>
+                    Give specific examples from your
+                    projects, education, or experience
+                    whenever possible.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+
+            © 2026 CareerAI · AI Career Guidance System
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+{{ interview_questions|json_script:"interview-data" }}
+
+<script>
+
+const interviewData = JSON.parse(
+    document.getElementById("interview-data").textContent
+);
+
+
+let selectedRole = "Software Developer";
+
+let selectedDifficulty = "easy";
+
+let currentQuestion = 0;
+
+
+/* =========================
+   GET QUESTIONS
+========================= */
+
+function getQuestions() {
+
+    return interviewData[selectedRole][selectedDifficulty];
+
+}
+
+
+/* =========================
+   UPDATE QUESTION
+========================= */
+
+function updateQuestion() {
+
+    const questions = getQuestions();
+
+    const question = questions[currentQuestion];
+
+
+    document.getElementById("question-text").textContent =
+        question.question;
+
+
+    document.getElementById("question-number").textContent =
+        `Question ${currentQuestion + 1} of ${questions.length}`;
+
+
+    document.querySelector(".question-type").textContent =
+        question.type;
+
+
+    const progress =
+        ((currentQuestion + 1) / questions.length) * 100;
+
+
+    document.getElementById("progress-fill").style.width =
+        progress + "%";
+
+
+    const nextButton =
+        document.querySelector(".next-btn");
+
+
+    if (currentQuestion === questions.length - 1) {
+
+        nextButton.textContent =
+            "Finish Interview ✓";
+
+    } else {
+
+        nextButton.textContent =
+            "Next Question →";
+
+    }
+
+}
+
+
+/* =========================
+   CHANGE ROLE
+========================= */
+
+function changeRole(role) {
+
+    selectedRole = role;
+
+    currentQuestion = 0;
+
+    document.getElementById("answer").value = "";
+
+    updateQuestion();
+
+}
+
+
+/* =========================
+   CHANGE DIFFICULTY
+========================= */
+
+function changeDifficulty(difficulty) {
+
+    selectedDifficulty = difficulty;
+
+    currentQuestion = 0;
+
+    document.getElementById("answer").value = "";
+
+
+    document
+        .querySelectorAll(".difficulty")
+        .forEach(button => {
+
+            button.classList.remove("active");
+
+        });
+
+
+    const selectedButton =
+        document.querySelector(
+            `.difficulty[data-difficulty="${difficulty}"]`
+        );
+
+
+    if (selectedButton) {
+
+        selectedButton.classList.add("active");
+
+    }
+
+
+    updateQuestion();
+
+}
+
+
+/* =========================
+   NEXT QUESTION
+========================= */
+
+function nextQuestion() {
+
+    const questions = getQuestions();
+
+
+    if (currentQuestion < questions.length - 1) {
+
+        currentQuestion++;
+
+        document.getElementById("answer").value = "";
+
+        updateQuestion();
+
+    } else {
+
+        alert(
+            "You have completed the " +
+            selectedDifficulty +
+            " interview for " +
+            selectedRole +
+            "."
+        );
+
+    }
+
+}
+
+
+/* =========================
+   PREVIOUS QUESTION
+========================= */
+
+function previousQuestion() {
+
+    if (currentQuestion > 0) {
+
+        currentQuestion--;
+
+        document.getElementById("answer").value = "";
+
+        updateQuestion();
+
+    }
+
+}
+
+
+/* =========================
+   START INTERVIEW
+========================= */
+
+function startInterview() {
+
+    currentQuestion = 0;
+
+    document.getElementById("answer").value = "";
+
+    updateQuestion();
+
+
+    document
+        .querySelector(".question-card")
+        .scrollIntoView({
+            behavior: "smooth"
+        });
+
+}
+
+
+/* =========================
+   INITIAL LOAD
+========================= */
+
+updateQuestion();
+
+</script>
+
+</body>
+</html>

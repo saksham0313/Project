@@ -1,0 +1,266 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Upload Resume | CareerAI</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'users/upload_resume.css' %}"
+    >
+
+</head>
+
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="logo">
+            CareerAI
+        </div>
+
+        <a
+            href="{% url 'dashboard' %}"
+            class="back-btn"
+        >
+            ← Back to Dashboard
+        </a>
+
+    </nav>
+
+
+    <main class="resume-container">
+        
+        {% if message %}
+    <div class="message success-message">
+        {{ message }}
+    </div>
+{% endif %}
+
+{% if error %}
+    <div class="message error-message">
+        {{ error }}
+    </div>
+{% endif %}
+
+        <div class="page-header">
+
+            <h1>
+                Upload Your Resume
+            </h1>
+
+            <p>
+                Upload your resume and let AI analyze your skills,
+                experience, and career opportunities.
+            </p>
+
+        </div>
+
+
+        <div class="upload-card">
+
+
+           <form
+    method="POST"
+    enctype="multipart/form-data"
+    action="{% url 'upload_resume' %}"
+>
+    {% csrf_token %}
+
+
+                <div class="upload-area">
+
+                    <div class="upload-icon">
+                        📄
+                    </div>
+
+
+                    <h2>
+                        Upload your resume
+                    </h2>
+
+
+                    <p>
+                        Choose your resume file from your computer.
+                    </p>
+
+
+                    <label
+                        for="resume"
+                        class="choose-file-btn"
+                    >
+                        Choose Resume
+                    </label>
+
+
+                    <input
+                        type="file"
+                        id="resume"
+                        name="resume"
+                        class="file-input"
+                        accept=".pdf,.doc,.docx"
+                        required
+                    >
+
+
+                    <div
+                        class="selected-file"
+                        id="selectedFile"
+                    >
+
+                        <strong>
+                            Selected file:
+                        </strong>
+
+                        <span id="fileName"></span>
+
+                    </div>
+
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="upload-btn"
+                >
+                    Upload Resume
+                </button>
+
+
+            </form>
+
+
+            <div class="info-box">
+
+                <strong>
+                    📌 Resume Tips
+                </strong>
+
+                Make sure your resume is clear and up to date.
+                Include your education, skills, projects,
+                certifications, and work experience.
+
+            </div>
+
+
+            <div class="supported-files">
+
+                <span class="file-badge">
+                    PDF
+                </span>
+
+                <span class="file-badge">
+                    DOC
+                </span>
+
+                <span class="file-badge">
+                    DOCX
+                </span>
+
+            </div>
+
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        const fileInput =
+            document.getElementById("resume");
+
+        const selectedFile =
+            document.getElementById("selectedFile");
+
+        const fileName =
+            document.getElementById("fileName");
+
+
+        fileInput.addEventListener(
+            "change",
+            function () {
+
+                if (this.files.length > 0) {
+
+                    fileName.textContent =
+                        this.files[0].name;
+
+                    selectedFile.style.display =
+                        "block";
+
+                }
+
+                else {
+
+                    selectedFile.style.display =
+                        "none";
+
+                }
+
+            }
+        );
+
+    </script>
+
+<script>
+
+    const savedTheme = "{{ user_settings.theme }}";
+
+
+    function applyTheme(theme) {
+
+        if (theme === "dark") {
+
+            document.body.classList.add("dark-mode");
+
+        }
+
+        else if (theme === "light") {
+
+            document.body.classList.remove("dark-mode");
+
+        }
+
+        else if (theme === "system") {
+
+            const prefersDark =
+                window.matchMedia(
+                    "(prefers-color-scheme: dark)"
+                ).matches;
+
+            if (prefersDark) {
+
+                document.body.classList.add("dark-mode");
+
+            }
+            else {
+
+                document.body.classList.remove("dark-mode");
+
+            }
+
+        }
+
+    }
+
+
+    applyTheme(savedTheme);
+
+</script>
+
+</body>
+
+</html>

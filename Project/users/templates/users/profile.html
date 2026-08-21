@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Student Profile</title>
+
+<link rel="stylesheet" href="/static/users/css/style.css">
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<h1>My Profile</h1>
+
+
+<div class="profile-card">
+
+
+<h2>
+    {{ student.full_name }}
+</h2>
+
+
+<p>
+<strong>Email:</strong>
+
+{{ user.email }}
+
+</p>
+
+
+
+<p>
+<strong>College:</strong>
+
+{{ student.college }}
+
+</p>
+
+
+
+<p>
+<strong>Course:</strong>
+
+{{ student.course }}
+
+</p>
+
+
+
+<p>
+<strong>CGPA:</strong>
+
+{{ student.cgpa }}
+
+</p>
+
+
+
+<p>
+<strong>Skills:</strong>
+
+{{ student.skills }}
+
+</p>
+
+
+
+<p>
+<strong>Resume Status:</strong>
+
+
+{% if student.resume_uploaded %}
+
+<span>
+Uploaded
+</span>
+
+
+{% else %}
+
+<span>
+Not Uploaded
+</span>
+
+
+{% endif %}
+
+
+</p>
+
+
+
+<a href="/upload/">
+
+Upload New Resume
+
+</a>
+
+
+</div>
+
+
+</div>
+
+
+</body>
+
+</html>

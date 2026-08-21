@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>
+Career Recommendation Result
+</title>
+
+
+<link rel="stylesheet" href="/static/users/css/style.css">
+
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<h1>
+AI Career Analysis
+</h1>
+
+
+
+<div class="result-card">
+
+
+
+<h2>
+Resume Score
+</h2>
+
+
+<div class="score">
+
+{{ result.score }}/100
+
+</div>
+
+
+
+<h2>
+Recommended Careers
+</h2>
+
+
+<ul>
+
+{% for career in result.careers %}
+
+<li>
+{{ career }}
+</li>
+
+{% endfor %}
+
+
+</ul>
+
+
+
+
+<h2>
+Detected Skills
+</h2>
+
+
+<ul>
+
+{% for skill in result.skills %}
+
+<li>
+{{ skill }}
+</li>
+
+{% endfor %}
+
+
+</ul>
+
+
+
+
+<h2>
+Improvement Suggestions
+</h2>
+
+
+<p>
+
+{{ result.feedback }}
+
+</p>
+
+
+
+<a href="/dashboard/">
+
+Back to Dashboard
+
+</a>
+
+
+
+</div>
+
+
+</div>
+
+
+</body>
+
+</html>

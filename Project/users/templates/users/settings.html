@@ -1,0 +1,648 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Settings | AI Career Guidance</title>
+
+    <!-- Settings CSS -->
+    <link
+        rel="stylesheet"
+        href="{% static 'users/settings.css' %}"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- ================================
+         Navigation
+         ================================ -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            AI Career Guidance
+        </div>
+
+        <a
+            href="{% url 'dashboard' %}"
+            class="back-btn"
+        >
+            ← Back to Dashboard
+        </a>
+
+    </nav>
+
+
+    <!-- ================================
+         Main Container
+         ================================ -->
+
+    <main class="container">
+
+
+        <!-- Page Title -->
+
+        <div class="page-title">
+
+            <h1>
+                Settings
+            </h1>
+
+            <p>
+                Manage your account and application preferences.
+            </p>
+
+        </div>
+
+
+        <div class="settings-layout">
+
+
+            <!-- ================================
+                 Settings Sidebar
+                 ================================ -->
+
+            <aside class="sidebar">
+
+                <a
+                    href="#profile"
+                    class="side-item active"
+                >
+                    👤 Profile
+                </a>
+
+
+                <a
+                    href="#notifications"
+                    class="side-item"
+                >
+                    🔔 Notifications
+                </a>
+
+
+                <a
+                    href="#appearance"
+                    class="side-item"
+                >
+                    🎨 Appearance
+                </a>
+
+
+                <a
+                    href="#privacy"
+                    class="side-item"
+                >
+                    🔒 Privacy
+                </a>
+
+
+                <a
+                    href="#account"
+                    class="side-item"
+                >
+                    ⚙️ Account
+                </a>
+
+            </aside>
+
+
+
+            <!-- ================================
+                 Main Settings Content
+                 ================================ -->
+
+            <section class="settings-content">
+
+
+                <!-- IMPORTANT:
+                     One form contains ALL settings.
+                -->
+
+                <form
+                    method="POST"
+                    action="{% url 'settings' %}"
+                >
+
+                    {% csrf_token %}
+
+
+                    <!-- ================================
+                         Profile
+                         ================================ -->
+
+                    <div
+                        class="section"
+                        id="profile"
+                    >
+
+                        <h2>
+                            Profile Settings
+                        </h2>
+
+                        <p class="section-description">
+                            Update your personal information.
+                        </p>
+
+
+                        <!-- Full Name -->
+
+                        <div class="form-group">
+
+                            <label for="name">
+                                Full Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="name"
+                                name="full_name"
+                                value="{{ student.full_name }}"
+                                placeholder="Enter your full name"
+                            >
+
+                        </div>
+
+
+                        <!-- Email -->
+
+                        <div class="form-group">
+
+                            <label for="email">
+                                Email Address
+                            </label>
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value="{{ user.email }}"
+                                placeholder="Enter your email"
+                            >
+
+                        </div>
+
+
+                        <!-- College -->
+
+                        <div class="form-group">
+
+    <label for="college">
+        College
+    </label>
+
+    <input
+        type="text"
+        id="college"
+        name="college"
+        value="{{ student.college }}"
+        placeholder="Enter your college"
+    >
+
+</div>
+
+
+                        <!-- Course -->
+
+                        <div class="form-group">
+
+    <label for="course">
+        Course
+    </label>
+
+    <input
+        type="text"
+        id="course"
+        name="course"
+        value="{{ student.course }}"
+        placeholder="e.g. Diploma Computer Engineering"
+    >
+
+</div>
+                    </div>
+
+
+
+                    <!-- ================================
+                         Notifications
+                         ================================ -->
+
+                    <div
+                        class="section"
+                        id="notifications"
+                    >
+
+                        <h2>
+                            Notifications
+                        </h2>
+
+                        <p class="section-description">
+                            Choose which notifications you want to receive.
+                        </p>
+
+
+                        <!-- Career Notifications -->
+
+                        <div class="toggle-row">
+
+                            <div class="toggle-text">
+
+                                <h3>
+                                    Career Recommendations
+                                </h3>
+
+                                <p>
+                                    Receive new career suggestions.
+                                </p>
+
+                            </div>
+
+
+                            <label class="switch">
+
+                                <input
+                                    type="checkbox"
+                                    name="career_notifications"
+                                    {% if user_settings.career_notifications %}
+                                        checked
+                                    {% endif %}
+                                >
+
+                                <span class="slider"></span>
+
+                            </label>
+
+                        </div>
+
+
+                        <!-- Resume Notifications -->
+
+                        <div class="toggle-row">
+
+                            <div class="toggle-text">
+
+                                <h3>
+                                    Resume Updates
+                                </h3>
+
+                                <p>
+                                    Get notified about resume analysis.
+                                </p>
+
+                            </div>
+
+
+                            <label class="switch">
+
+                                <input
+                                    type="checkbox"
+                                    name="resume_notifications"
+                                    {% if user_settings.resume_notifications %}
+                                        checked
+                                    {% endif %}
+                                >
+
+                                <span class="slider"></span>
+
+                            </label>
+
+                        </div>
+
+
+                        <!-- Job Notifications -->
+
+                        <div class="toggle-row">
+
+                            <div class="toggle-text">
+
+                                <h3>
+                                    Job Recommendations
+                                </h3>
+
+                                <p>
+                                    Receive relevant job opportunities.
+                                </p>
+
+                            </div>
+
+
+                            <label class="switch">
+
+                                <input
+                                    type="checkbox"
+                                    name="job_notifications"
+                                    {% if user_settings.job_notifications %}
+                                        checked
+                                    {% endif %}
+                                >
+
+                                <span class="slider"></span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ================================
+                         Appearance
+                         ================================ -->
+
+                    <div
+                        class="section"
+                        id="appearance"
+                    >
+
+                        <h2>
+                            Appearance
+                        </h2>
+
+                        <p class="section-description">
+                            Customize how the website looks.
+                        </p>
+
+
+                        <div class="form-group">
+
+                            <label for="theme">
+                                Theme
+                            </label>
+
+
+                            <select
+                                id="theme"
+                                name="theme"
+                            >
+
+                                <option
+                                    value="light"
+                                    {% if user_settings.theme == "light" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Light
+                                </option>
+
+
+                                <option
+                                    value="dark"
+                                    {% if user_settings.theme == "dark" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Dark
+                                </option>
+
+
+                                <option
+                                    value="system"
+                                    {% if user_settings.theme == "system" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    System Default
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ================================
+                         Privacy
+                         ================================ -->
+
+                    <div
+                        class="section"
+                        id="privacy"
+                    >
+
+                        <h2>
+                            Privacy
+                        </h2>
+
+                        <p class="section-description">
+                            Control how your information is used.
+                        </p>
+
+
+                        <div class="toggle-row">
+
+                            <div class="toggle-text">
+
+                                <h3>
+                                    Profile Visibility
+                                </h3>
+
+                                <p>
+                                    Allow your profile to be visible to
+                                    career recommendation features.
+                                </p>
+
+                            </div>
+
+
+                            <label class="switch">
+
+                                <input
+                                    type="checkbox"
+                                    name="profile_visibility"
+                                    {% if user_settings.profile_visibility %}
+                                        checked
+                                    {% endif %}
+                                >
+
+                                <span class="slider"></span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ================================
+                         Account
+                         ================================ -->
+
+                    <div
+                        class="section"
+                        id="account"
+                    >
+
+                        <h2>
+                            Account
+                        </h2>
+
+                        <p class="section-description">
+                            Manage your account.
+                        </p>
+
+
+                        <p class="danger">
+                            Logging out will end your current session.
+                        </p>
+
+
+                        <a
+                            href="{% url 'logout' %}"
+                        >
+
+                            <button
+                                type="button"
+                                class="danger-btn"
+                            >
+                                Logout
+                            </button>
+
+                        </a>
+
+                    </div>
+
+
+
+                    <!-- ================================
+                         Save / Cancel
+                         ================================ -->
+
+                    <div class="button-row">
+
+
+                        <button
+                            type="reset"
+                            class="btn btn-secondary"
+                        >
+                            Reset
+                        </button>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Save Changes
+                        </button>
+
+
+                    </div>
+
+
+                </form>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- ================================
+         Theme JavaScript
+         ================================ -->
+
+    <script>
+
+        const themeSelect =
+            document.getElementById("theme");
+
+
+        function applyTheme(theme) {
+
+            if (theme === "dark") {
+
+                document.body.classList.add("dark-mode");
+
+            }
+
+            else if (theme === "light") {
+
+                document.body.classList.remove("dark-mode");
+
+            }
+
+            else {
+
+                const prefersDark =
+                    window.matchMedia(
+                        "(prefers-color-scheme: dark)"
+                    ).matches;
+
+
+                if (prefersDark) {
+
+                    document.body.classList.add("dark-mode");
+
+                }
+
+                else {
+
+                    document.body.classList.remove("dark-mode");
+
+                }
+
+            }
+
+        }
+
+
+        if (themeSelect) {
+
+            themeSelect.addEventListener(
+                "change",
+                function () {
+
+                    applyTheme(this.value);
+
+                }
+            );
+
+
+            /*
+             * Apply the saved theme when
+             * the page first loads.
+             */
+
+            applyTheme(themeSelect.value);
+
+        }
+
+    </script>
+
+<script>
+    const savedTheme = "{{ user_settings.theme }}";
+
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+    }
+    else if (savedTheme === "system") {
+        if (
+            window.matchMedia(
+                "(prefers-color-scheme: dark)"
+            ).matches
+        ) {
+            document.body.classList.add("dark-mode");
+        }
+    }
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,408 @@
+<!-- dashboard.html -->
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>AI Career Guidance | Dashboard</title>
+{% load static %}
+<link rel="stylesheet" href="{% static 'users/dashboard.css' %}">
+```
+
+</head>
+
+<body>
+
+```
+<div class="dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">AI</div>
+            <div>
+                <h2>Career<span>AI</span></h2>
+                <p>Career Guidance</p>
+            </div>
+        </div>
+
+        <nav class="navigation">
+
+            <a href="#" class="nav-item active">
+                <span>⌂</span>
+                Dashboard
+            </a>
+
+            <a href="{% url 'upload_resume' %}" class="nav-item">
+                <span>📄</span>
+                Resume
+            </a>
+
+            <a href="{% url 'ai_interview' %}" class="nav-item">
+    <span>🎤</span>
+    AI Interview
+</a>
+
+            <a href="#" class="nav-item">
+                <span>📊</span>
+                Performance
+            </a>
+
+            <a href="#" class="nav-item">
+                <span>💡</span>
+                Career Guidance
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <a href="{% url 'settings' %}" class="nav-item">
+                <span>⚙</span>
+                Settings
+            </a>
+
+            <a href="/logout/" class="logout">
+                <span>↪</span>
+                Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <p>Saved theme: {{ user_settings.theme }}</p>
+
+        <!-- Top Bar -->
+        <header class="topbar">
+
+            <div>
+                <p class="welcome-small">WELCOME BACK 👋</p>
+                <h1>Dashboard</h1>
+            </div>
+
+            <div class="profile">
+
+                <div class="notification">
+                    🔔
+                </div>
+
+                <div class="avatar">
+                          {{ request.user.username|first|upper }}
+                 </div>
+
+                <div class="profile-info">
+                   <strong>{{ request.user.username }}</strong>
+                     <span>Career Explorer</span>
+                  </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- Welcome Card -->
+        <section class="welcome-card">
+
+            <div class="welcome-text">
+
+                <span class="badge">AI POWERED</span>
+
+                <h2>Build your career with confidence.</h2>
+
+                <p>
+                    Upload your resume, practice AI-powered interviews,
+                    and discover personalized career opportunities.
+                </p>
+
+                <a href="{% url 'upload_resume' %}" class="primary-btn">
+                    📄 Upload Your Resume
+                    <span>→</span>
+                </a>
+
+            </div>
+
+            <div class="welcome-illustration">
+                <div class="ai-circle">
+                    ✦
+                </div>
+
+                <div class="floating-card card-one">
+                    ✓ Resume Analysis
+                </div>
+
+                <div class="floating-card card-two">
+                    ★ AI Feedback
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- Statistics -->
+        <section class="stats-grid">
+
+            <div class="stat-card">
+    <div class="stat-icon purple">📄</div>
+    <div>
+        <span>Resume Status</span>
+
+        {% if resume_uploaded %}
+            <strong>Uploaded ✓</strong>
+        {% else %}
+            <strong>Not Uploaded</strong>
+        {% endif %}
+
+    </div>
+</div>
+            <div class="stat-card">
+                <div class="stat-icon blue">🎤</div>
+                <div>
+                    <span>Interviews</span>
+                    <strong>0</strong>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">📈</div>
+                <div>
+                    <span>Average Score</span>
+                    <strong>--</strong>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon orange">🎯</div>
+                <div>
+                    <span>Career Progress</span>
+                    <strong>Getting Started</strong>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- Main Grid -->
+        <section class="content-grid">
+
+            <!-- Quick Actions -->
+            <div class="panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h3>Quick Actions</h3>
+                        <p>Start improving your career today.</p>
+                    </div>
+                </div>
+
+                <div class="actions">
+
+                    <a href="{% url 'upload_resume' %}" class="action-card">
+
+                        <div class="action-icon purple-bg">
+                            📄
+                        </div>
+
+                        <div>
+                            <h4>Upload Resume</h4>
+                            <p>Get AI-powered resume analysis.</p>
+                        </div>
+
+                        <span class="arrow">→</span>
+
+                    </a>
+
+
+                    <a href="{% url 'ai_interview' %}" class="action-card">
+
+                        <div class="action-icon blue-bg">
+                            🎤
+                        </div>
+
+                        <div>
+                            <h4>Practice Interview</h4>
+                            <p>Practice questions with AI.</p>
+                        </div>
+
+                        <span class="arrow">→</span>
+
+                    </a>
+
+
+                    <a href="#" class="action-card">
+
+                        <div class="action-icon green-bg">
+                            💡
+                        </div>
+
+                        <div>
+                            <h4>Career Guidance</h4>
+                            <p>Discover your career path.</p>
+                        </div>
+
+                        <span class="arrow">→</span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- Progress -->
+            <div class="panel progress-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+                        <h3>Your Progress</h3>
+                        <p>Complete these steps to get started.</p>
+                    </div>
+
+                </div>
+
+                <div class="progress-item completed">
+                    <div class="step-icon">✓</div>
+
+                    <div>
+                        <strong>Create Account</strong>
+                        <span>Account successfully created</span>
+                    </div>
+                </div>
+
+
+                {% if resume_uploaded %}
+
+<div class="progress-item completed">
+    <div class="step-icon">✓</div>
+
+    <div>
+        <strong>Upload Resume</strong>
+        <span>Resume uploaded successfully</span>
+    </div>
+</div>
+
+{% else %}
+
+<div class="progress-item">
+    <div class="step-icon">2</div>
+
+    <div>
+        <strong>Upload Resume</strong>
+        <span>Upload your resume to continue</span>
+    </div>
+</div>
+
+{% endif %}
+
+                <div class="progress-item">
+                    <div class="step-icon">3</div>
+
+                    <div>
+                        <strong>Take AI Interview</strong>
+                        <span>Test your interview skills</span>
+                    </div>
+                </div>
+
+
+                <div class="progress-item">
+                    <div class="step-icon">4</div>
+
+                    <div>
+                        <strong>View Career Insights</strong>
+                        <span>Get personalized recommendations</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Bottom Tip -->
+        <section class="tip-card">
+
+            <div class="tip-icon">💡</div>
+
+            <div>
+                <strong>Career Tip</strong>
+                <p>
+                    A strong resume is the first step toward your dream job.
+                    Upload yours to receive personalized AI feedback.
+                </p>
+            </div>
+
+            <a href="{% url 'upload_resume' %}">
+                Get Started →
+            </a>
+
+        </section>
+
+
+        <footer>
+            © 2026 CareerAI · AI Career Guidance System
+        </footer>
+
+    </main>
+
+</div>
+```
+<script>
+
+    const savedTheme = "{{ user_settings.theme }}";
+
+
+    function applyDashboardTheme(theme) {
+
+        if (theme === "dark") {
+
+            document.body.classList.add("dark-mode");
+
+        }
+
+        else if (theme === "light") {
+
+            document.body.classList.remove("dark-mode");
+
+        }
+
+        else {
+
+            const prefersDark =
+                window.matchMedia(
+                    "(prefers-color-scheme: dark)"
+                ).matches;
+
+
+            if (prefersDark) {
+
+                document.body.classList.add("dark-mode");
+
+            }
+
+            else {
+
+                document.body.classList.remove("dark-mode");
+
+            }
+
+        }
+
+    }
+
+
+    applyDashboardTheme(savedTheme);
+
+</script>
+
+</body>
+</html>

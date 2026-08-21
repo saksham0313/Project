@@ -1,0 +1,203 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | CareerAI</title>
+
+    <link rel="stylesheet" href="{% static 'users/login.css' %}">
+</head>
+
+<body>
+
+    <div class="login-page">
+
+        <!-- Left Section -->
+        <section class="intro-section">
+
+            <div class="brand">
+                <div class="brand-icon">AI</div>
+
+                <div>
+                    <h2>Career<span>AI</span></h2>
+                    <p>AI Career Guidance</p>
+                </div>
+            </div>
+
+
+            <div class="intro-content">
+
+                <span class="ai-badge">
+                    ✦ AI POWERED CAREER PLATFORM
+                </span>
+
+                <h1>
+                    Welcome back to your
+                    <span>career journey.</span>
+                </h1>
+
+                <p>
+                    Continue your journey with AI-powered career guidance,
+                    resume analysis, and interview preparation.
+                </p>
+
+
+                <div class="features">
+
+                    <div class="feature">
+
+                        <div class="feature-icon">
+                            📄
+                        </div>
+
+                        <div>
+                            <strong>Smart Resume Analysis</strong>
+                            <p>Improve your resume with AI-powered insights.</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="feature">
+
+                        <div class="feature-icon">
+                            🎤
+                        </div>
+
+                        <div>
+                            <strong>AI Interview Practice</strong>
+                            <p>Prepare for interviews and build confidence.</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="feature">
+
+                        <div class="feature-icon">
+                            🎯
+                        </div>
+
+                        <div>
+                            <strong>Personalized Guidance</strong>
+                            <p>Find career opportunities based on your skills.</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="intro-footer">
+                © 2026 CareerAI · AI Career Guidance System
+            </div>
+
+        </section>
+
+
+        <!-- Login Section -->
+        <section class="login-section">
+
+            <div class="login-card">
+
+                <!-- Mobile Logo -->
+                <div class="mobile-logo">
+
+                    <div class="brand-icon">
+                        AI
+                    </div>
+
+                    <h2>
+                        Career<span>AI</span>
+                    </h2>
+
+                </div>
+
+
+                <!-- Header -->
+                <div class="form-header">
+
+                    <span class="form-badge">
+                        WELCOME BACK
+                    </span>
+
+                    <h1>Sign In</h1>
+
+                    <p>
+                        Login to continue your career journey.
+                    </p>
+
+                </div>
+
+
+                <!-- Login Form -->
+                <form method="POST">
+
+                    {% csrf_token %}
+
+                    <div class="django-form">
+
+    <p>
+        <label for="username">Username</label>
+
+        <input
+            type="text"
+            name="username"
+            id="username"
+            placeholder="Enter your username"
+            required
+        >
+    </p>
+
+    <p>
+        <label for="password">Password</label>
+
+        <input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Enter your password"
+            required
+        >
+    </p>
+
+</div>
+
+
+                    <button type="submit" class="login-btn">
+
+                        <span>Sign In</span>
+
+                        <strong>→</strong>
+
+                    </button>
+
+                </form>
+
+
+                <!-- Register Link -->
+                <div class="register-link">
+
+                    <span>Don't have an account?</span>
+
+                    <a href="/register/">
+                        Create Account
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</body>
+
+</html>

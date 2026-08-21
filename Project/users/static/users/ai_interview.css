@@ -1,0 +1,1286 @@
+/* =========================================================
+   CAREERAI - AI INTERVIEW
+   Dashboard-style layout
+   ========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: #f6f7fb;
+    color: #1f2937;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+/* =========================================================
+   MAIN LAYOUT
+   ========================================================= */
+
+.interview-page {
+    min-height: 100vh;
+    display: flex;
+    background: #f6f7fb;
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.sidebar {
+    width: 255px;
+    min-height: 100vh;
+
+    background: #111827;
+    color: white;
+
+    padding: 28px 18px;
+
+    display: flex;
+    flex-direction: column;
+
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 0 10px 32px;
+}
+
+.logo-icon {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+
+    background: linear-gradient(
+        135deg,
+        #6366f1,
+        #8b5cf6
+    );
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-weight: 800;
+    font-size: 15px;
+}
+
+.logo h2 {
+    font-size: 20px;
+    color: white;
+}
+
+.logo h2 span {
+    color: #8b5cf6;
+}
+
+.logo p {
+    color: #9ca3af;
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+
+/* NAVIGATION */
+
+.navigation {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.nav-item,
+.logout {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    padding: 13px 14px;
+
+    border-radius: 10px;
+
+    color: #9ca3af;
+    font-size: 14px;
+
+    transition: 0.25s ease;
+}
+
+.nav-item span,
+.logout span {
+    width: 22px;
+    text-align: center;
+    font-size: 17px;
+}
+
+.nav-item:hover {
+    background: #1f2937;
+    color: white;
+}
+
+.nav-item.active {
+    background: linear-gradient(
+        90deg,
+        #4f46e5,
+        #6366f1
+    );
+
+    color: white;
+
+    box-shadow:
+        0 7px 18px
+        rgba(79, 70, 229, 0.25);
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+
+    border-top: 1px solid #273244;
+
+    padding-top: 18px;
+}
+
+.logout:hover {
+    background: #2b1d24;
+    color: #fca5a5;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+.main-content {
+    margin-left: 255px;
+
+    width: calc(100% - 255px);
+
+    padding: 30px 42px;
+
+    background: #f6f7fb;
+}
+
+
+/* =========================================================
+   TOP BAR
+   ========================================================= */
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 28px;
+}
+
+.welcome-small {
+    color: #8b5cf6;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1.3px;
+
+    margin-bottom: 5px;
+}
+
+.topbar h1 {
+    font-size: 30px;
+    color: #111827;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 42px;
+    height: 42px;
+
+    background: #6366f1;
+
+    color: white;
+
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-weight: 700;
+}
+
+.profile-info strong {
+    display: block;
+
+    color: #111827;
+
+    font-size: 13px;
+}
+
+.profile-info span {
+    display: block;
+
+    color: #9ca3af;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   PURPLE HERO
+   ========================================================= */
+
+.interview-hero {
+    min-height: 230px;
+
+    border-radius: 22px;
+
+    padding: 38px 42px;
+
+    margin-bottom: 25px;
+
+    background: linear-gradient(
+        135deg,
+        #4338ca,
+        #6d28d9,
+        #9333ea
+    );
+
+    color: white;
+
+    position: relative;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 18px 40px
+        rgba(79, 70, 229, 0.22);
+}
+
+.interview-hero::before {
+    content: "";
+
+    position: absolute;
+
+    width: 320px;
+    height: 320px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(255,255,255,0.15);
+
+    right: 60px;
+    top: -130px;
+}
+
+.interview-hero::after {
+    content: "";
+
+    position: absolute;
+
+    width: 200px;
+    height: 200px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(255,255,255,0.15);
+
+    right: 120px;
+    top: -60px;
+}
+
+.interview-hero > div:first-child {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-badge {
+    display: inline-block;
+
+    padding: 7px 13px;
+
+    margin-bottom: 14px;
+
+    border-radius: 20px;
+
+    background: rgba(255,255,255,0.18);
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.interview-hero h2 {
+    font-size: 34px;
+
+    line-height: 1.15;
+
+    letter-spacing: -1px;
+
+    margin-bottom: 12px;
+
+    color: white;
+}
+
+.interview-hero p {
+    max-width: 620px;
+
+    color: #ddd6fe;
+
+    line-height: 1.6;
+
+    font-size: 14px;
+}
+
+.hero-icon {
+    position: absolute;
+
+    right: 100px;
+    top: 70px;
+
+    width: 90px;
+    height: 90px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.12);
+
+    border: 1px solid rgba(255,255,255,0.25);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 35px;
+
+    z-index: 2;
+}
+
+
+/* =========================================================
+   SETUP + QUESTION
+   ========================================================= */
+
+.interview-layout {
+    display: grid;
+
+    grid-template-columns: 0.75fr 1.5fr;
+
+    gap: 20px;
+
+    align-items: start;
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.setup-card,
+.question-card {
+    background: white;
+
+    border: 1px solid #e9eaf0;
+
+    border-radius: 16px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 6px 20px
+        rgba(17, 24, 39, 0.05);
+}
+
+
+/* =========================================================
+   SECTION TITLE
+   ========================================================= */
+
+.section-title {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 22px;
+}
+
+.title-icon {
+    width: 40px;
+    height: 40px;
+
+    border-radius: 11px;
+
+    background: #ede9fe;
+
+    color: #6366f1;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 18px;
+}
+
+.section-title h3 {
+    color: #111827;
+
+    font-size: 17px;
+
+    margin-bottom: 3px;
+}
+
+.section-title p {
+    color: #9ca3af;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+
+.setting {
+    margin-bottom: 20px;
+}
+
+.setting label {
+    display: block;
+
+    color: #374151;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    margin-bottom: 8px;
+}
+
+.setting select {
+    width: 100%;
+
+    height: 43px;
+
+    padding: 0 12px;
+
+    background: white;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 9px;
+
+    color: #374151;
+
+    font-size: 12px;
+
+    outline: none;
+}
+
+.setting select:focus {
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(99,102,241,0.10);
+}
+
+
+/* =========================================================
+   DIFFICULTY
+   ========================================================= */
+
+.difficulty-options {
+    display: flex;
+
+    gap: 7px;
+}
+
+.difficulty {
+    flex: 1;
+
+    padding: 10px 5px;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 8px;
+
+    background: white;
+
+    color: #6b7280;
+
+    cursor: pointer;
+
+    font-size: 11px;
+
+    transition: 0.2s;
+}
+
+.difficulty:hover {
+    border-color: #a5b4fc;
+
+    color: #4f46e5;
+}
+
+.difficulty.active {
+    background: #ede9fe;
+
+    color: #4f46e5;
+
+    border-color: #c4b5fd;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   INTERVIEW INFO
+   ========================================================= */
+
+.interview-info {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+    margin: 25px 0;
+}
+
+.interview-info div {
+    padding: 13px;
+
+    background: #f9fafb;
+
+    border-radius: 10px;
+
+    border: 1px solid #f0f1f5;
+}
+
+.interview-info span {
+    display: block;
+
+    font-size: 10px;
+
+    color: #9ca3af;
+
+    margin-bottom: 4px;
+}
+
+.interview-info strong {
+    font-size: 13px;
+
+    color: #111827;
+}
+
+
+/* =========================================================
+   START BUTTON
+   ========================================================= */
+
+.start-btn {
+    width: 100%;
+
+    border: none;
+
+    padding: 13px 18px;
+
+    border-radius: 9px;
+
+    background: linear-gradient(
+        90deg,
+        #4f46e5,
+        #7c3aed
+    );
+
+    color: white;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.25s;
+}
+
+.start-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px
+        rgba(79,70,229,0.25);
+}
+
+
+/* =========================================================
+   QUESTION CARD
+   ========================================================= */
+
+.question-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 15px;
+}
+
+.question-label {
+    color: #8b5cf6;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.question-header h3 {
+    margin-top: 5px;
+
+    font-size: 15px;
+
+    color: #111827;
+}
+
+.question-type {
+    background: #ede9fe;
+
+    color: #6d28d9;
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+
+.progress-bar {
+    width: 100%;
+
+    height: 6px;
+
+    background: #eef0f5;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    margin-bottom: 32px;
+}
+
+.progress-fill {
+    height: 100%;
+
+    width: 20%;
+
+    background: linear-gradient(
+        90deg,
+        #6366f1,
+        #8b5cf6
+    );
+
+    border-radius: 10px;
+
+    transition: width 0.3s ease;
+}
+
+
+/* =========================================================
+   QUESTION CONTENT
+   ========================================================= */
+
+.question-content {
+    text-align: center;
+
+    padding: 15px 20px 25px;
+}
+
+.ai-question-icon {
+    width: 52px;
+    height: 52px;
+
+    margin: 0 auto 17px;
+
+    border-radius: 14px;
+
+    background: #ede9fe;
+
+    color: #6366f1;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 22px;
+}
+
+.question-content h2 {
+    color: #111827;
+
+    font-size: 22px;
+
+    line-height: 1.4;
+
+    margin-bottom: 8px;
+}
+
+.question-content p {
+    color: #9ca3af;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   ANSWER
+   ========================================================= */
+
+.question-card textarea {
+    width: 100%;
+
+    min-height: 150px;
+
+    resize: vertical;
+
+    padding: 14px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 10px;
+
+    background: white;
+
+    color: #1f2937;
+
+    font-size: 12px;
+
+    outline: none;
+}
+
+.question-card textarea:focus {
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(99,102,241,0.10);
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.question-actions {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 15px;
+}
+
+.secondary-btn {
+    padding: 10px 16px;
+
+    background: white;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 9px;
+
+    color: #6b7280;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.secondary-btn:hover {
+    background: #f9fafb;
+}
+
+.next-btn {
+    padding: 11px 20px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: linear-gradient(
+        90deg,
+        #4f46e5,
+        #7c3aed
+    );
+
+    color: white;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.next-btn:hover {
+    box-shadow:
+        0 8px 18px
+        rgba(79,70,229,0.20);
+}
+
+
+/* =========================================================
+   INTERVIEW TIP
+   ========================================================= */
+
+.interview-tip {
+    margin-top: 20px;
+
+    background: #f5f3ff;
+
+    border: 1px solid #ddd6fe;
+
+    border-radius: 15px;
+
+    padding: 18px 21px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+}
+
+.tip-icon {
+    width: 42px;
+    height: 42px;
+
+    background: white;
+
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 18px;
+}
+
+.interview-tip strong {
+    color: #111827;
+
+    font-size: 13px;
+}
+
+.interview-tip p {
+    color: #6b7280;
+
+    font-size: 11px;
+
+    margin-top: 4px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer {
+    text-align: center;
+
+    color: #9ca3af;
+
+    font-size: 10px;
+
+    padding: 25px 0 5px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+    .interview-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-icon {
+        display: none;
+    }
+}
+
+@media (max-width: 750px) {
+
+    .sidebar {
+        width: 70px;
+        padding: 20px 10px;
+    }
+
+    .logo {
+        justify-content: center;
+        padding: 0 0 25px;
+    }
+
+    .logo > div:last-child,
+    .nav-item:not(.active),
+    .logout {
+        font-size: 0;
+    }
+
+    .nav-item {
+        justify-content: center;
+    }
+
+    .nav-item span,
+    .logout span {
+        font-size: 17px;
+    }
+
+    .main-content {
+        margin-left: 70px;
+        width: calc(100% - 70px);
+        padding: 22px 18px;
+    }
+
+    .profile-info {
+        display: none;
+    }
+
+    .interview-hero {
+        padding: 28px;
+    }
+
+    .interview-hero h2 {
+        font-size: 27px;
+    }
+}
+
+@media (max-width: 520px) {
+
+    .topbar h1 {
+        font-size: 24px;
+    }
+
+    .interview-hero {
+        min-height: auto;
+    }
+
+    .setup-card,
+    .question-card {
+        padding: 19px;
+    }
+
+    .difficulty-options {
+        flex-direction: column;
+    }
+
+    .interview-info {
+        grid-template-columns: 1fr;
+    }
+
+    .question-content h2 {
+        font-size: 18px;
+    }
+
+    .question-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .secondary-btn,
+    .next-btn {
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   AI INTERVIEW - SAME THEME SYSTEM AS DASHBOARD
+   ========================================================= */
+
+body.dark-mode {
+    background: #111827 !important;
+    color: #f9fafb !important;
+}
+
+body.dark-mode .interview-page {
+    background: #111827 !important;
+}
+
+body.dark-mode .main-content {
+    background: #111827 !important;
+}
+
+
+/* Sidebar */
+
+body.dark-mode .sidebar {
+    background: #111827 !important;
+}
+
+body.dark-mode .nav-item {
+    color: #d1d5db !important;
+}
+
+body.dark-mode .nav-item:hover {
+    background: #1f2937 !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .nav-item.active {
+    background: #312e81 !important;
+    color: #ffffff !important;
+}
+
+
+/* Top bar */
+
+body.dark-mode .topbar h1 {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .welcome-small {
+    color: #a78bfa !important;
+}
+
+body.dark-mode .profile-info strong {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .profile-info span {
+    color: #9ca3af !important;
+}
+
+
+/* Keep purple hero */
+
+body.dark-mode .interview-hero {
+    background:
+        linear-gradient(
+            135deg,
+            #312e81,
+            #4c1d95,
+            #581c87
+        ) !important;
+
+    color: white !important;
+}
+
+body.dark-mode .interview-hero h2,
+body.dark-mode .interview-hero p {
+    color: white !important;
+}
+
+
+/* Cards */
+
+body.dark-mode .setup-card,
+body.dark-mode .question-card {
+    background: #1f2937 !important;
+
+    border-color: #374151 !important;
+
+    color: #f9fafb !important;
+}
+
+
+/* Card headings */
+
+body.dark-mode .section-title h3,
+body.dark-mode .question-header h3 {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .section-title p {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .title-icon,
+body.dark-mode .ai-question-icon {
+    background: #312e81 !important;
+    color: #c4b5fd !important;
+}
+
+
+/* Labels */
+
+body.dark-mode .setting label {
+    color: #d1d5db !important;
+}
+
+
+/* Select */
+
+body.dark-mode .setting select {
+    background: #111827 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+body.dark-mode .setting select option {
+    background: #111827 !important;
+    color: #f9fafb !important;
+}
+
+
+/* Difficulty */
+
+body.dark-mode .difficulty {
+    background: #111827 !important;
+    color: #9ca3af !important;
+    border-color: #4b5563 !important;
+}
+
+body.dark-mode .difficulty:hover {
+    background: #374151 !important;
+    color: white !important;
+}
+
+body.dark-mode .difficulty.active {
+    background: #4f46e5 !important;
+    color: white !important;
+    border-color: #4f46e5 !important;
+}
+
+
+/* Interview information */
+
+body.dark-mode .interview-info div {
+    background: #111827 !important;
+    border-color: #374151 !important;
+}
+
+body.dark-mode .interview-info span {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .interview-info strong {
+    color: #f9fafb !important;
+}
+
+
+/* Question */
+
+body.dark-mode .question-header {
+    border-bottom-color: #374151 !important;
+}
+
+body.dark-mode .question-label {
+    color: #a78bfa !important;
+}
+
+body.dark-mode .question-type {
+    background: #312e81 !important;
+    color: #c4b5fd !important;
+}
+
+body.dark-mode .question-content h2 {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .question-content p {
+    color: #9ca3af !important;
+}
+
+
+/* Progress */
+
+body.dark-mode .progress-bar {
+    background: #374151 !important;
+}
+
+
+/* Textarea */
+
+body.dark-mode .question-card textarea {
+    background: #111827 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+body.dark-mode .question-card textarea::placeholder {
+    color: #6b7280 !important;
+}
+
+
+/* Secondary button */
+
+body.dark-mode .secondary-btn {
+    background: #1f2937 !important;
+    color: #d1d5db !important;
+    border-color: #4b5563 !important;
+}
+
+body.dark-mode .secondary-btn:hover {
+    background: #374151 !important;
+    color: white !important;
+}
+
+
+/* Purple buttons */
+
+body.dark-mode .start-btn,
+body.dark-mode .next-btn {
+    background:
+        linear-gradient(
+            90deg,
+            #4f46e5,
+            #7c3aed
+        ) !important;
+
+    color: white !important;
+}
+
+
+/* Tip */
+
+body.dark-mode .interview-tip {
+    background: #1e1b4b !important;
+    border-color: #3730a3 !important;
+}
+
+body.dark-mode .interview-tip strong {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .interview-tip p {
+    color: #c4b5fd !important;
+}
+
+
+/* Footer */
+
+body.dark-mode footer {
+    color: #9ca3af !important;
+}

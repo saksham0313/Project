@@ -1,0 +1,480 @@
+/* ================================
+   AI Career Guidance - Settings
+   ================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #f5f7fb;
+    color: #1f2937;
+    font-family: Arial, sans-serif;
+}
+
+/* ================================
+   Navigation Bar
+   ================================ */
+
+.navbar {
+    height: 70px;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 35px;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.back-btn {
+    text-decoration: none;
+    color: #374151;
+    font-size: 15px;
+}
+
+.back-btn:hover {
+    color: #2563eb;
+}
+
+/* ================================
+   Main Container
+   ================================ */
+
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.page-title {
+    margin-bottom: 25px;
+}
+
+.page-title h1 {
+    font-size: 30px;
+    margin-bottom: 7px;
+}
+
+.page-title p {
+    color: #6b7280;
+}
+
+/* ================================
+   Settings Layout
+   ================================ */
+
+.settings-layout {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: 25px;
+}
+
+/* ================================
+   Sidebar
+   ================================ */
+
+.sidebar {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    height: fit-content;
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.side-item {
+    display: block;
+
+    padding: 13px 15px;
+    margin-bottom: 5px;
+
+    border-radius: 8px;
+
+    text-decoration: none;
+    color: #4b5563;
+
+    transition: 0.2s;
+}
+
+.side-item:hover {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.side-item.active {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+/* ================================
+   Settings Content
+   ================================ */
+
+.settings-content {
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 30px;
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.section {
+    padding-bottom: 28px;
+    margin-bottom: 28px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.section h2 {
+    font-size: 19px;
+    margin-bottom: 6px;
+}
+
+.section-description {
+    color: #6b7280;
+    font-size: 14px;
+
+    margin-bottom: 20px;
+}
+
+/* ================================
+   Form
+   ================================ */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    margin-bottom: 7px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+
+    padding: 11px 13px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+
+    font-size: 14px;
+
+    outline: none;
+
+    background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+/* ================================
+   Toggle Switch
+   ================================ */
+
+.toggle-row {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 13px 0;
+}
+
+.toggle-text h3 {
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.toggle-text p {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Switch */
+
+.switch {
+    position: relative;
+
+    display: inline-block;
+
+    width: 45px;
+    height: 24px;
+
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+
+    cursor: pointer;
+
+    inset: 0;
+
+    background: #d1d5db;
+
+    border-radius: 20px;
+
+    transition: 0.3s;
+}
+
+.slider:before {
+    content: "";
+
+    position: absolute;
+
+    height: 18px;
+    width: 18px;
+
+    left: 3px;
+    top: 3px;
+
+    background: white;
+
+    border-radius: 50%;
+
+    transition: 0.3s;
+}
+
+.switch input:checked + .slider {
+    background: #2563eb;
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(21px);
+}
+
+/* ================================
+   Buttons
+   ================================ */
+
+.button-row {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 25px;
+}
+
+.btn {
+    border: none;
+
+    padding: 11px 20px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+    transition: 0.2s;
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+/* ================================
+   Danger Section
+   ================================ */
+
+.danger {
+    color: #dc2626;
+    font-size: 14px;
+}
+
+.danger-btn {
+    margin-top: 10px;
+
+    padding: 10px 16px;
+
+    border: 1px solid #dc2626;
+
+    color: #dc2626;
+    background: white;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.danger-btn:hover {
+    background: #fef2f2;
+}
+
+/* ================================
+   Responsive Design
+   ================================ */
+
+@media (max-width: 700px) {
+
+    .navbar {
+        padding: 0 20px;
+    }
+
+    .settings-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        display: flex;
+
+        overflow-x: auto;
+
+        padding: 10px;
+    }
+
+    .side-item {
+        white-space: nowrap;
+
+        margin-right: 5px;
+        margin-bottom: 0;
+    }
+
+    .settings-content {
+        padding: 20px;
+    }
+
+    .page-title h1 {
+        font-size: 25px;
+    }
+
+    .toggle-row {
+        gap: 15px;
+    }
+
+    .button-row {
+        justify-content: stretch;
+    }
+
+    .button-row .btn {
+        flex: 1;
+    }
+}
+
+/* ================================
+   Dark Mode
+   ================================ */
+
+body.dark-mode {
+    background: #111827;
+    color: #f9fafb;
+}
+
+body.dark-mode .navbar {
+    background: #1f2937;
+    border-bottom-color: #374151;
+}
+
+body.dark-mode .logo {
+    color: #60a5fa;
+}
+
+body.dark-mode .back-btn {
+    color: #d1d5db;
+}
+
+body.dark-mode .sidebar {
+    background: #1f2937;
+}
+
+body.dark-mode .side-item {
+    color: #d1d5db;
+}
+
+body.dark-mode .side-item:hover,
+body.dark-mode .side-item.active {
+    background: #374151;
+    color: #60a5fa;
+}
+
+body.dark-mode .settings-content {
+    background: #1f2937;
+}
+
+body.dark-mode .section {
+    border-bottom-color: #374151;
+}
+
+body.dark-mode .section-description {
+    color: #9ca3af;
+}
+
+body.dark-mode .toggle-text p {
+    color: #9ca3af;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select {
+    background: #111827;
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group select:focus {
+    border-color: #60a5fa;
+}
+
+body.dark-mode .btn-secondary {
+    background: #374151;
+    color: #f9fafb;
+}
+
+body.dark-mode .btn-secondary:hover {
+    background: #4b5563;
+}
+
+body.dark-mode .danger-btn {
+    background: #1f2937;
+}

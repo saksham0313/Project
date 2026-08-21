@@ -1,0 +1,510 @@
+/* =========================================
+   CAREERAI - UPLOAD RESUME
+   ========================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f7fb;
+    color: #111827;
+    transition: background 0.25s ease, color 0.25s ease;
+}
+
+
+/* =========================================
+   NAVBAR
+   ========================================= */
+
+.navbar {
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 35px;
+
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+
+    transition: 0.25s ease;
+}
+
+.logo {
+    font-size: 19px;
+    font-weight: 700;
+    color: #4f46e5;
+}
+
+.back-btn {
+    color: #4f46e5;
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+.back-btn:hover {
+    color: #3730a3;
+}
+
+
+/* =========================================
+   MAIN CONTAINER
+   ========================================= */
+
+.resume-container {
+    width: 90%;
+    max-width: 900px;
+
+    margin: 45px auto;
+}
+
+
+/* =========================================
+   PAGE HEADER
+   ========================================= */
+
+.page-header {
+    margin-bottom: 25px;
+}
+
+.page-header h1 {
+    margin: 0 0 8px;
+
+    font-size: 30px;
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.page-header p {
+    margin: 0;
+
+    max-width: 650px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   MAIN CARD
+   ========================================= */
+
+.upload-card {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+
+    padding: 35px;
+
+    box-shadow:
+        0 10px 30px rgba(15, 23, 42, 0.07);
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+/* =========================================
+   UPLOAD AREA
+   ========================================= */
+
+.upload-area {
+    padding: 55px 30px;
+
+    text-align: center;
+
+    border: 2px dashed #c7d2fe;
+    border-radius: 14px;
+
+    background: #f8faff;
+
+    transition: 0.25s ease;
+}
+
+.upload-area:hover {
+    border-color: #6366f1;
+    background: #eef2ff;
+}
+
+
+/* =========================================
+   UPLOAD ICON
+   ========================================= */
+
+.upload-icon {
+    width: 75px;
+    height: 75px;
+
+    margin: 0 auto 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #e0e7ff;
+
+    font-size: 34px;
+}
+
+
+/* =========================================
+   UPLOAD TITLE
+   ========================================= */
+
+.upload-area h2 {
+    margin: 0 0 10px;
+
+    color: #111827;
+
+    font-size: 21px;
+}
+
+.upload-area p {
+    margin: 0 0 22px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   FILE INPUT
+   ========================================= */
+
+.file-input {
+    display: none;
+}
+
+
+/* =========================================
+   CHOOSE FILE BUTTON
+   ========================================= */
+
+.choose-file-btn {
+    display: inline-block;
+
+    padding: 12px 24px;
+
+    border-radius: 8px;
+
+    background: #4f46e5;
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.choose-file-btn:hover {
+    background: #4338ca;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 15px rgba(79, 70, 229, 0.25);
+}
+
+
+/* =========================================
+   SELECTED FILE
+   ========================================= */
+
+.selected-file {
+    display: none;
+
+    margin: 20px auto 0;
+
+    max-width: 550px;
+
+    padding: 14px 18px;
+
+    text-align: left;
+
+    background: #f3f4f6;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+}
+
+.selected-file strong {
+    color: #111827;
+
+    margin-right: 6px;
+}
+
+.selected-file span {
+    color: #6b7280;
+
+    font-size: 13px;
+
+    word-break: break-word;
+}
+
+
+/* =========================================
+   UPLOAD BUTTON
+   ========================================= */
+
+.upload-btn {
+    width: 100%;
+
+    margin-top: 25px;
+
+    padding: 14px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: #4f46e5;
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.upload-btn:hover {
+    background: #4338ca;
+
+    box-shadow:
+        0 6px 18px rgba(79, 70, 229, 0.25);
+}
+
+.upload-btn:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================
+   INFO BOX
+   ========================================= */
+
+.info-box {
+    margin-top: 25px;
+
+    padding: 18px 20px;
+
+    border-radius: 10px;
+
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+
+    color: #3730a3;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.info-box strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #312e81;
+}
+
+
+/* =========================================
+   SUPPORTED FILES
+   ========================================= */
+
+.supported-files {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-top: 22px;
+
+    flex-wrap: wrap;
+}
+
+.file-badge {
+    padding: 6px 13px;
+
+    border-radius: 20px;
+
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+
+    color: #4b5563;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* =========================================
+   DARK MODE
+   ========================================= */
+
+body.dark-mode {
+    background: #111827;
+    color: #f9fafb;
+}
+
+
+/* Navbar */
+
+body.dark-mode .navbar {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+body.dark-mode .logo {
+    color: #818cf8;
+}
+
+body.dark-mode .back-btn {
+    color: #a5b4fc;
+}
+
+
+/* Header */
+
+body.dark-mode .page-header h1 {
+    color: #f9fafb;
+}
+
+body.dark-mode .page-header p {
+    color: #9ca3af;
+}
+
+
+/* Main card */
+
+body.dark-mode .upload-card {
+    background: #1f2937;
+    border-color: #374151;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+
+/* Upload area */
+
+body.dark-mode .upload-area {
+    background: #111827;
+    border-color: #4f46e5;
+}
+
+body.dark-mode .upload-area:hover {
+    background: #1e1b4b;
+    border-color: #6366f1;
+}
+
+body.dark-mode .upload-icon {
+    background: #312e81;
+}
+
+body.dark-mode .upload-area h2 {
+    color: #f9fafb;
+}
+
+body.dark-mode .upload-area p {
+    color: #9ca3af;
+}
+
+
+/* Selected file */
+
+body.dark-mode .selected-file {
+    background: #374151;
+    border-color: #4b5563;
+}
+
+body.dark-mode .selected-file strong {
+    color: #f9fafb;
+}
+
+body.dark-mode .selected-file span {
+    color: #d1d5db;
+}
+
+
+/* Information */
+
+body.dark-mode .info-box {
+    background: #312e81;
+    border-color: #4338ca;
+    color: #e0e7ff;
+}
+
+body.dark-mode .info-box strong {
+    color: #ffffff;
+}
+
+
+/* File badges */
+
+body.dark-mode .file-badge {
+    background: #374151;
+    border-color: #4b5563;
+    color: #d1d5db;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 700px) {
+
+    .navbar {
+        padding: 0 18px;
+    }
+
+    .resume-container {
+        width: 94%;
+        margin: 30px auto;
+    }
+
+    .upload-card {
+        padding: 20px;
+    }
+
+    .upload-area {
+        padding: 40px 18px;
+    }
+
+    .page-header h1 {
+        font-size: 25px;
+    }
+
+    .upload-area h2 {
+        font-size: 19px;
+    }
+
+}

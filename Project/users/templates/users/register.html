@@ -1,0 +1,144 @@
+<!-- register.html -->
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Account | CareerAI</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'users/register.css' %}">
+</head>
+
+<body>
+
+
+<div class="register-page">
+
+    <!-- Left Section -->
+    <section class="intro-section">
+
+        <div class="brand">
+            <div class="brand-icon">AI</div>
+
+            <div>
+                <h2>Career<span>AI</span></h2>
+                <p>AI Career Guidance</p>
+            </div>
+        </div>
+
+        <div class="intro-content">
+
+            <span class="ai-badge">✦ AI POWERED CAREER PLATFORM</span>
+
+            <h1>
+                Start building your
+                <span>future today.</span>
+            </h1>
+
+            <p>
+                Create your CareerAI account and get personalized
+                career guidance, resume analysis, and AI-powered
+                interview preparation.
+            </p>
+
+            <div class="features">
+
+                <div class="feature">
+                    <div class="feature-icon">📄</div>
+                    <div>
+                        <strong>Resume Analysis</strong>
+                        <p>Get intelligent feedback on your resume.</p>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">🎤</div>
+                    <div>
+                        <strong>AI Interview Practice</strong>
+                        <p>Practice interviews and improve your skills.</p>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <div>
+                        <strong>Career Guidance</strong>
+                        <p>Discover opportunities suited to your skills.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="intro-footer">
+            © 2026 CareerAI · AI Career Guidance System
+        </div>
+
+    </section>
+
+
+    <!-- Register Section -->
+    <section class="register-section">
+
+        <div class="register-card">
+
+            <div class="mobile-logo">
+                <div class="brand-icon">AI</div>
+                <h2>Career<span>AI</span></h2>
+            </div>
+
+            <div class="form-header">
+
+                <span class="form-badge">GET STARTED</span>
+
+                <h1>Create Account</h1>
+
+                <p>
+                    Create your account to start your career journey.
+                </p>
+
+            </div>
+
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <div class="django-form">
+                    {{ form.as_p }}
+                </div>
+
+                <button type="submit" class="register-btn">
+                    <span>Create My Account</span>
+                    <strong>→</strong>
+                </button>
+
+            </form>
+
+
+            <div class="login-link">
+
+                <span>Already have an account?</span>
+
+                <a href="/login/">
+                    Sign in
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+```
+
+</body>
+
+</html>

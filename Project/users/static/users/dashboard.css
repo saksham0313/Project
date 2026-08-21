@@ -1,0 +1,899 @@
+/* dashboard.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  }
+
+body {
+min-height: 100vh;
+background: #f6f7fb;
+color: #1f2937;
+}
+
+a {
+text-decoration: none;
+color: inherit;
+}
+
+/* =========================
+DASHBOARD LAYOUT
+========================= */
+
+.dashboard {
+min-height: 100vh;
+display: flex;
+}
+
+/* =========================
+SIDEBAR
+========================= */
+
+.sidebar {
+width: 255px;
+min-height: 100vh;
+background: #111827;
+color: white;
+padding: 28px 18px;
+display: flex;
+flex-direction: column;
+position: fixed;
+left: 0;
+top: 0;
+bottom: 0;
+}
+
+.logo {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 0 10px 32px;
+}
+
+.logo-icon {
+width: 42px;
+height: 42px;
+border-radius: 12px;
+background: linear-gradient(135deg, #6366f1, #8b5cf6);
+display: flex;
+justify-content: center;
+align-items: center;
+font-weight: 800;
+font-size: 15px;
+}
+
+.logo h2 {
+font-size: 20px;
+letter-spacing: -0.5px;
+}
+
+.logo h2 span {
+color: #8b5cf6;
+}
+
+.logo p {
+color: #9ca3af;
+font-size: 11px;
+margin-top: 3px;
+}
+
+/* Navigation */
+
+.navigation {
+display: flex;
+flex-direction: column;
+gap: 7px;
+}
+
+.nav-item,
+.logout {
+display: flex;
+align-items: center;
+gap: 13px;
+padding: 13px 14px;
+border-radius: 10px;
+color: #9ca3af;
+font-size: 14px;
+transition: 0.25s ease;
+}
+
+.nav-item span,
+.logout span {
+width: 22px;
+text-align: center;
+font-size: 17px;
+}
+
+.nav-item:hover {
+background: #1f2937;
+color: white;
+}
+
+.nav-item.active {
+background: linear-gradient(90deg, #4f46e5, #6366f1);
+color: white;
+box-shadow: 0 7px 18px rgba(79, 70, 229, 0.25);
+}
+
+.sidebar-bottom {
+margin-top: auto;
+border-top: 1px solid #273244;
+padding-top: 18px;
+}
+
+.logout:hover {
+background: #2b1d24;
+color: #fca5a5;
+}
+
+/* =========================
+MAIN CONTENT
+========================= */
+
+.main-content {
+margin-left: 255px;
+width: calc(100% - 255px);
+padding: 30px 42px;
+max-width: 1600px;
+}
+
+/* =========================
+TOPBAR
+========================= */
+
+.topbar {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 28px;
+}
+
+.welcome-small {
+color: #8b5cf6;
+font-size: 11px;
+font-weight: 800;
+letter-spacing: 1.3px;
+margin-bottom: 5px;
+}
+
+.topbar h1 {
+font-size: 30px;
+color: #111827;
+}
+
+.profile {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.notification {
+width: 42px;
+height: 42px;
+background: white;
+border: 1px solid #e5e7eb;
+border-radius: 11px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+}
+
+.avatar {
+width: 42px;
+height: 42px;
+background: #6366f1;
+color: white;
+border-radius: 50%;
+display: flex;
+justify-content: center;
+align-items: center;
+font-weight: 700;
+}
+
+.profile-info {
+display: flex;
+flex-direction: column;
+}
+
+.profile-info strong {
+font-size: 14px;
+}
+
+.profile-info span {
+font-size: 11px;
+color: #9ca3af;
+margin-top: 2px;
+}
+
+/* =========================
+WELCOME CARD
+========================= */
+
+.welcome-card {
+min-height: 265px;
+border-radius: 22px;
+padding: 38px 42px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+overflow: hidden;
+position: relative;
+background: linear-gradient(120deg, #4338ca, #6d28d9, #7c3aed);
+color: white;
+box-shadow: 0 18px 40px rgba(79, 70, 229, 0.22);
+}
+
+.welcome-card::after {
+content: "";
+width: 300px;
+height: 300px;
+position: absolute;
+right: 5%;
+top: -100px;
+border-radius: 50%;
+border: 50px solid rgba(255,255,255,0.06);
+}
+
+.welcome-text {
+max-width: 600px;
+z-index: 1;
+}
+
+.badge {
+display: inline-block;
+padding: 6px 11px;
+border-radius: 20px;
+background: rgba(255,255,255,0.16);
+font-size: 10px;
+font-weight: 800;
+letter-spacing: 1px;
+margin-bottom: 14px;
+}
+
+.welcome-text h2 {
+font-size: 34px;
+line-height: 1.15;
+margin-bottom: 12px;
+letter-spacing: -1px;
+}
+
+.welcome-text p {
+color: #ddd6fe;
+line-height: 1.6;
+font-size: 14px;
+margin-bottom: 23px;
+max-width: 560px;
+}
+
+.primary-btn {
+display: inline-flex;
+align-items: center;
+gap: 18px;
+background: white;
+color: #4f46e5;
+padding: 12px 18px;
+border-radius: 9px;
+font-weight: 700;
+font-size: 13px;
+transition: 0.25s;
+}
+
+.primary-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.primary-btn span {
+font-size: 17px;
+}
+
+/* Illustration */
+
+.welcome-illustration {
+width: 270px;
+height: 190px;
+position: relative;
+z-index: 1;
+}
+
+.ai-circle {
+width: 130px;
+height: 130px;
+position: absolute;
+top: 20px;
+left: 70px;
+border-radius: 50%;
+background: rgba(255,255,255,0.12);
+border: 1px solid rgba(255,255,255,0.2);
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 60px;
+color: white;
+box-shadow: 0 0 50px rgba(255,255,255,0.12);
+}
+
+.floating-card {
+position: absolute;
+background: white;
+color: #374151;
+padding: 11px 15px;
+border-radius: 9px;
+font-size: 11px;
+font-weight: 700;
+box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.card-one {
+left: 0;
+top: 25px;
+}
+
+.card-two {
+right: 0;
+bottom: 20px;
+}
+
+/* =========================
+STATISTICS
+========================= */
+
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 17px;
+margin: 24px 0;
+}
+
+.stat-card {
+background: white;
+border: 1px solid #e9eaf0;
+border-radius: 14px;
+padding: 19px;
+display: flex;
+align-items: center;
+gap: 14px;
+transition: 0.25s;
+}
+
+.stat-card:hover {
+transform: translateY(-3px);
+box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+}
+
+.stat-icon {
+width: 45px;
+height: 45px;
+border-radius: 11px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 19px;
+}
+
+.purple {
+background: #ede9fe;
+}
+
+.blue {
+background: #dbeafe;
+}
+
+.green {
+background: #dcfce7;
+}
+
+.orange {
+background: #ffedd5;
+}
+
+.stat-card span {
+display: block;
+color: #9ca3af;
+font-size: 11px;
+margin-bottom: 5px;
+}
+
+.stat-card strong {
+font-size: 14px;
+color: #1f2937;
+}
+
+/* =========================
+CONTENT GRID
+========================= */
+
+.content-grid {
+display: grid;
+grid-template-columns: 1.35fr 1fr;
+gap: 20px;
+}
+
+.panel {
+background: white;
+border: 1px solid #e9eaf0;
+border-radius: 16px;
+padding: 24px;
+}
+
+.panel-heading {
+margin-bottom: 18px;
+}
+
+.panel-heading h3 {
+font-size: 17px;
+color: #111827;
+margin-bottom: 4px;
+}
+
+.panel-heading p {
+color: #9ca3af;
+font-size: 12px;
+}
+
+/* =========================
+ACTION CARDS
+========================= */
+
+.actions {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+.action-card {
+display: flex;
+align-items: center;
+gap: 14px;
+padding: 13px;
+border: 1px solid #edf0f4;
+border-radius: 11px;
+transition: 0.25s;
+}
+
+.action-card:hover {
+border-color: #c7d2fe;
+background: #fafaff;
+transform: translateX(3px);
+}
+
+.action-icon {
+min-width: 42px;
+height: 42px;
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.purple-bg {
+background: #ede9fe;
+}
+
+.blue-bg {
+background: #dbeafe;
+}
+
+.green-bg {
+background: #dcfce7;
+}
+
+.action-card h4 {
+font-size: 13px;
+margin-bottom: 4px;
+}
+
+.action-card p {
+color: #9ca3af;
+font-size: 11px;
+}
+
+.arrow {
+margin-left: auto;
+color: #9ca3af;
+font-size: 18px;
+}
+
+/* =========================
+PROGRESS
+========================= */
+
+.progress-item {
+display: flex;
+align-items: center;
+gap: 13px;
+margin-bottom: 16px;
+}
+
+.step-icon {
+min-width: 31px;
+height: 31px;
+border-radius: 50%;
+border: 1px solid #d1d5db;
+color: #9ca3af;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 12px;
+font-weight: 700;
+}
+
+.completed .step-icon {
+background: #22c55e;
+color: white;
+border-color: #22c55e;
+}
+
+.progress-item strong {
+display: block;
+font-size: 12px;
+margin-bottom: 3px;
+}
+
+.progress-item span {
+color: #9ca3af;
+font-size: 10px;
+}
+
+/* =========================
+TIP CARD
+========================= */
+
+.tip-card {
+margin-top: 20px;
+background: #f5f3ff;
+border: 1px solid #ddd6fe;
+border-radius: 15px;
+padding: 18px 21px;
+display: flex;
+align-items: center;
+gap: 14px;
+}
+
+.tip-icon {
+width: 42px;
+height: 42px;
+background: white;
+border-radius: 10px;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.tip-card strong {
+font-size: 13px;
+}
+
+.tip-card p {
+font-size: 11px;
+color: #6b7280;
+margin-top: 4px;
+}
+
+.tip-card a {
+margin-left: auto;
+color: #4f46e5;
+font-size: 12px;
+font-weight: 700;
+}
+
+/* =========================
+FOOTER
+========================= */
+
+footer {
+text-align: center;
+color: #9ca3af;
+font-size: 10px;
+padding: 25px 0 5px;
+}
+
+/* =========================
+RESPONSIVE DESIGN
+========================= */
+
+@media (max-width: 1100px) {
+
+
+.stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.content-grid {
+    grid-template-columns: 1fr;
+}
+
+.welcome-illustration {
+    display: none;
+}
+
+
+}
+
+@media (max-width: 750px) {
+
+
+.sidebar {
+    width: 70px;
+    padding: 20px 10px;
+}
+
+.logo {
+    justify-content: center;
+    padding: 0 0 25px;
+}
+
+.logo > div:last-child,
+.nav-item:not(.active) {
+    font-size: 0;
+}
+
+.nav-item {
+    justify-content: center;
+}
+
+.nav-item span {
+    font-size: 17px;
+}
+
+.main-content {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+    padding: 22px 18px;
+}
+
+.profile-info {
+    display: none;
+}
+
+.welcome-card {
+    padding: 28px;
+}
+
+.welcome-text h2 {
+    font-size: 27px;
+}
+
+
+}
+
+@media (max-width: 520px) {
+
+
+.stats-grid {
+    grid-template-columns: 1fr;
+}
+
+.topbar h1 {
+    font-size: 24px;
+}
+
+.welcome-card {
+    min-height: auto;
+}
+
+.tip-card {
+    align-items: flex-start;
+}
+
+.tip-card a {
+    display: none;
+}
+
+}
+
+/* ========================================
+   DARK MODE
+   ======================================== */
+
+body.dark-mode {
+    background: #111827 !important;
+    color: #f9fafb !important;
+}
+
+
+/* Main dashboard background */
+
+body.dark-mode .dashboard {
+    background: #111827 !important;
+}
+
+body.dark-mode .main-content {
+    background: #111827 !important;
+    color: #f9fafb !important;
+}
+
+
+/* Sidebar */
+
+body.dark-mode .sidebar {
+    background: #111827 !important;
+    color: #f9fafb !important;
+}
+
+
+/* Top bar */
+
+body.dark-mode .topbar {
+    background: #111827 !important;
+    color: #f9fafb !important;
+}
+
+body.dark-mode .topbar h1 {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .welcome-small {
+    color: #a78bfa !important;
+}
+
+
+/* Profile */
+
+body.dark-mode .profile-info strong {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .profile-info span {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .notification {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+}
+
+
+/* Welcome card */
+
+body.dark-mode .welcome-card {
+    color: white !important;
+}
+
+
+/*
+   The welcome card already has a purple
+   gradient, so we keep it purple.
+*/
+
+
+body.dark-mode .welcome-card h2,
+body.dark-mode .welcome-card p {
+    color: white !important;
+}
+
+
+/* Statistics */
+
+body.dark-mode .stat-card {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+}
+
+body.dark-mode .stat-card span {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .stat-card strong {
+    color: #f9fafb !important;
+}
+
+
+/* Main panels */
+
+body.dark-mode .panel {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+}
+
+body.dark-mode .panel-heading h3 {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .panel-heading p {
+    color: #9ca3af !important;
+}
+
+
+/* Quick action cards */
+
+body.dark-mode .action-card {
+    background: #111827 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+}
+
+body.dark-mode .action-card:hover {
+    background: #374151 !important;
+}
+
+body.dark-mode .action-card h4 {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .action-card p {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .arrow {
+    color: #818cf8 !important;
+}
+
+
+/* Progress */
+
+body.dark-mode .progress-item {
+    border-color: #374151 !important;
+}
+
+body.dark-mode .progress-item strong {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .progress-item span {
+    color: #9ca3af !important;
+}
+
+
+/* Career tip */
+
+body.dark-mode .tip-card {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+}
+
+body.dark-mode .tip-card strong {
+    color: #f9fafb !important;
+}
+
+body.dark-mode .tip-card p {
+    color: #d1d5db !important;
+}
+
+body.dark-mode .tip-card a {
+    color: #818cf8 !important;
+}
+
+body.dark-mode .tip-icon {
+    background: #374151 !important;
+}
+
+
+/* Footer */
+
+body.dark-mode footer {
+    color: #9ca3af !important;
+}
+
+
+/* Navigation */
+
+body.dark-mode .nav-item {
+    color: #d1d5db !important;
+}
+
+body.dark-mode .nav-item:hover {
+    background: #1f2937 !important;
+    color: white !important;
+}
+
+body.dark-mode .nav-item.active {
+    color: white !important;
+}
+
+
+/* Remove light backgrounds from common elements */
+
+body.dark-mode .actions {
+    background: transparent !important;
+}
+
+body.dark-mode .content-grid {
+    background: transparent !important;
+}
