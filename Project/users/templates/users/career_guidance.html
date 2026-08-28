@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Guidance | CareerAI</title>
+    <link rel="stylesheet" href="{% static 'users/career_guidance.css' %}">
+</head>
+<body>
+<div class="guidance-page">
+    <aside class="sidebar">
+        <div class="logo"><div class="logo-icon">AI</div><div><h2>Career<span>AI</span></h2><p>AI Career Guidance</p></div></div>
+        <nav class="navigation">
+            <a href="{% url 'dashboard' %}" class="nav-item"><span>⌂</span>Dashboard</a>
+            <a href="{% url 'upload_resume' %}" class="nav-item"><span>📄</span>Resume</a>
+            <a href="{% url 'ai_interview' %}" class="nav-item"><span>🎤</span>AI Interview</a>
+            <a href="{% url 'career_guidance' %}" class="nav-item active"><span>💡</span>Career Guidance</a>
+            <a href="{% url 'settings' %}" class="nav-item"><span>⚙</span>Settings</a>
+        </nav>
+        <div class="sidebar-bottom"><a href="{% url 'logout' %}" class="logout"><span>↪</span>Logout</a></div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div><p class="welcome-small">RESUME-GROUNDED ROADMAP</p><h1>Career Guidance</h1></div>
+            <div class="profile"><div class="avatar">{{ request.user.username|first|upper }}</div><div class="profile-info"><strong>{{ request.user.username }}</strong><span>Career Explorer</span></div></div>
+        </header>
+
+        <section class="guidance-hero">
+            <div><span class="hero-badge">✦ PERSONALIZED SUGGESTIONS</span><h2>Know what to improve next.</h2><p>CareerAI connects your resume evidence with interview practice signals and turns them into a focused, realistic action plan.</p></div>
+            <div class="hero-orbit"><span>✦</span><i>skills</i><i>projects</i><i>confidence</i></div>
+        </section>
+
+        <section class="control-card">
+            <div><span class="control-label">CURRENT EVIDENCE</span>{% if latest_resume %}<h3>{{ latest_resume.resume_file.name }}</h3><p class="muted">{% if latest_resume.parse_status == 'complete' %}Resume text is ready for analysis.{% else %}{{ latest_resume.parse_error|default:'Resume needs readable text.' }}{% endif %}</p>{% else %}<h3>No resume uploaded yet</h3><p class="muted">Upload a PDF first so suggestions stay grounded in your own profile.</p>{% endif %}</div>
+            {% if latest_resume %}<form method="post">{% csrf_token %}<button class="primary-btn" type="submit">{% if guidance %}Refresh suggestions{% else %}Generate suggestions{% endif %} <span>→</span></button></form>{% else %}<a class="primary-btn" href="{% url 'upload_resume' %}">Upload resume <span>→</span></a>{% endif %}
+        </section>
+
+        {% if error %}<div class="message error">{{ error }}</div>{% endif %}
+        {% if guidance %}
+            <div class="source-line"><span class="source-dot"></span> Generated with {{ generated_by|title }} mode · grounded in your resume evidence</div>
+            <section class="guidance-grid">
+                <article class="guidance-card roles"><div class="card-heading"><span class="card-icon">↗</span><div><span class="card-label">BEST-FIT DIRECTIONS</span><h3>Target roles</h3></div></div><ul>{% for item in guidance.target_roles %}<li>{{ item }}</li>{% endfor %}</ul></article>
+                <article class="guidance-card strengths"><div class="card-heading"><span class="card-icon">✓</span><div><span class="card-label">WHAT YOU CAN LEAD WITH</span><h3>Strengths</h3></div></div><ul>{% for item in guidance.strengths %}<li>{{ item }}</li>{% endfor %}</ul></article>
+                <article class="guidance-card gaps"><div class="card-heading"><span class="card-icon">+</span><div><span class="card-label">HIGH-VALUE NEXT GAPS</span><h3>Skill gaps</h3></div></div><ul>{% for item in guidance.skill_gaps %}<li>{{ item }}</li>{% empty %}<li>No major gap detected from the current evidence.</li>{% endfor %}</ul></article>
+                <article class="guidance-card projects"><div class="card-heading"><span class="card-icon">⌁</span><div><span class="card-label">PORTFOLIO PROOF</span><h3>Project ideas</h3></div></div><ul>{% for item in guidance.project_ideas %}<li>{{ item }}</li>{% endfor %}</ul></article>
+            </section>
+            <section class="plan-card"><div class="plan-heading"><div><span class="card-label">THE NEXT 30 DAYS</span><h3>A plan you can actually finish.</h3></div><span class="plan-mark">30</span></div><div class="plan-list">{% for item in guidance.thirty_day_plan %}<div class="plan-item"><span>{{ forloop.counter|stringformat:'02d' }}</span><p>{{ item }}</p></div>{% endfor %}</div></section>
+            <section class="next-card"><div><span class="card-label">START HERE</span><h3>Next steps</h3></div><div class="next-list">{% for item in guidance.next_steps %}<div><span>→</span><p>{{ item }}</p></div>{% endfor %}</div></section>
+        {% else %}
+            <section class="empty-state"><div class="empty-icon">✦</div><h3>Your roadmap will appear here.</h3><p>Upload a readable resume, then generate suggestions. Gemini will be used when your free API key is configured; local guidance remains available as a fallback.</p></section>
+        {% endif %}
+        <footer>© 2026 CareerAI · Practice with evidence, grow with intent</footer>
+    </main>
+</div>
+</body>
+</html>

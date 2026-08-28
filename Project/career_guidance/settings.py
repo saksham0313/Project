@@ -10,22 +10,38 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+try:
+    from dotenv import load_dotenv
+except ImportError:  # .env loading is optional for the offline mode
+    load_dotenv = None
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+if load_dotenv:
+    load_dotenv(BASE_DIR.parent / ".env")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_77*9)fxb&f8j#18fwl@k+_n#n=_zq8rp%^en_b$m5t8wzxgg^'
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY",
+    "careerai-local-development-secret-change-before-deployment",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEBUG", "1").lower() in {"1", "true", "yes", "on"}
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    if host.strip()
+]
 
 
 # Application definition
@@ -126,4 +142,27 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Authentication defaults. Without this, Django redirects protected pages to
+# /accounts/login/, which is not a route in this project.
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/dashboard/"
+LOGOUT_REDIRECT_URL = "/login/"
+
+# The interview remains usable without any external service. These values only
+# enable the optional provider adapter when the user explicitly configures it.
+AI_PROVIDER = os.getenv("AI_PROVIDER", "local").lower()
+AI_ENABLED = os.getenv("ENABLE_AI", "false").lower() in {"1", "true", "yes", "on"}
+AI_TIMEOUT_SECONDS = int(os.getenv("AI_TIMEOUT_SECONDS", "20"))
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+OPENROUTER_HTTP_REFERER = os.getenv("OPENROUTER_HTTP_REFERER", "")
+OPENROUTER_TITLE = os.getenv("OPENROUTER_TITLE", "CareerAI Resume Interview")
+
+# Resume uploads are deliberately constrained on the server, independent of
+# the browser's accept attribute.
+RESUME_MAX_SIZE = int(os.getenv("RESUME_MAX_SIZE", str(10 * 1024 * 1024)))
 

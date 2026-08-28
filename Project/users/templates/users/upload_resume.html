@@ -109,7 +109,7 @@
                         id="resume"
                         name="resume"
                         class="file-input"
-                        accept=".pdf,.doc,.docx"
+                        accept=".pdf"
                         required
                     >
 
@@ -162,17 +162,22 @@
                 </span>
 
                 <span class="file-badge">
-                    DOC
-                </span>
-
-                <span class="file-badge">
-                    DOCX
+                    PDF only
                 </span>
 
             </div>
 
 
         </div>
+
+        {% if resume and resume.parsed_profile %}
+        <div class="info-box">
+            <strong>Local resume analysis ready</strong>
+            <p>Detected skills: {{ resume.parsed_profile.skills|join:", "|default:"No skills detected yet" }}</p>
+            {% if resume.parsed_profile.projects %}<p>Projects found: {{ resume.parsed_profile.projects|length }}</p>{% endif %}
+            <a href="{% url 'ai_interview' %}">Start resume-based interview →</a>
+        </div>
+        {% endif %}
 
     </main>
 

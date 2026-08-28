@@ -7,17 +7,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-```
 <title>AI Career Guidance | Dashboard</title>
 {% load static %}
 <link rel="stylesheet" href="{% static 'users/dashboard.css' %}">
-```
 
 </head>
 
 <body>
 
-```
 <div class="dashboard">
 
     <!-- Sidebar -->
@@ -48,7 +45,7 @@
     AI Interview
 </a>
 
-            <a href="#" class="nav-item">
+            <a href="{% url 'career_guidance' %}" class="nav-item">
                 <span>📊</span>
                 Performance
             </a>
@@ -168,7 +165,7 @@
                 <div class="stat-icon blue">🎤</div>
                 <div>
                     <span>Interviews</span>
-                    <strong>0</strong>
+                    <strong>{{ interview_count }}</strong>
                 </div>
             </div>
 
@@ -176,7 +173,7 @@
                 <div class="stat-icon green">📈</div>
                 <div>
                     <span>Average Score</span>
-                    <strong>--</strong>
+                    <strong>{% if average_score is not None %}{{ average_score }}/100{% else %}--{% endif %}</strong>
                 </div>
             </div>
 
@@ -184,7 +181,7 @@
                 <div class="stat-icon orange">🎯</div>
                 <div>
                     <span>Career Progress</span>
-                    <strong>Getting Started</strong>
+                    <strong>{{ progress_label }}</strong>
                 </div>
             </div>
 
@@ -238,7 +235,7 @@
                     </a>
 
 
-                    <a href="#" class="action-card">
+                    <a href="{% url 'career_guidance' %}" class="action-card">
 
                         <div class="action-icon green-bg">
                             💡
@@ -355,7 +352,6 @@
     </main>
 
 </div>
-```
 <script>
 
     const savedTheme = "{{ user_settings.theme }}";

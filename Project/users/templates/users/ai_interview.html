@@ -1,715 +1,223 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Interview | CareerAI</title>
-    
-    <link rel="stylesheet" href="/static/users/ai_interview.css?v=2">
-
+    <link rel="stylesheet" href="{% static 'users/ai_interview.css' %}">
 </head>
-
-<body class="dark-theme">
-
-    
-
-    <body>
-
-<script>
-    const savedTheme = "{{ user_settings.theme }}";
-
-    function applyInterviewTheme(theme) {
-        if (theme === "dark") {
-            document.body.classList.add("dark-mode");
-        } else if (theme === "light") {
-            document.body.classList.remove("dark-mode");
-        } else {
-            const prefersDark = window.matchMedia(
-                "(prefers-color-scheme: dark)"
-            ).matches;
-
-            document.body.classList.toggle(
-                "dark-mode",
-                prefersDark
-            );
-        }
-    }
-
-    applyInterviewTheme(savedTheme);
-
-    const systemTheme = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-    );
-
-    systemTheme.addEventListener("change", function () {
-        if (savedTheme === "system") {
-            applyInterviewTheme("system");
-        }
-    });
-</script>
-    
-
+<body>
 <div class="interview-page">
-
-    <!-- SIDEBAR -->
-
     <aside class="sidebar">
-
         <div class="logo">
-
-            <div class="logo-icon">
-                AI
-            </div>
-
-            <div>
-                <h2>
-                    Career<span>AI</span>
-                </h2>
-
-                <p>
-                    AI Career Guidance
-                </p>
-            </div>
-
+            <div class="logo-icon">AI</div>
+            <div><h2>Career<span>AI</span></h2><p>AI Career Guidance</p></div>
         </div>
-
-
         <nav class="navigation">
-
-            <a
-                href="{% url 'dashboard' %}"
-                class="nav-item"
-            >
-                <span>⌂</span>
-                Dashboard
-            </a>
-
-
-            <a
-                href="{% url 'upload_resume' %}"
-                class="nav-item"
-            >
-                <span>📄</span>
-                Resume
-            </a>
-
-
-            <a
-                href="{% url 'ai_interview' %}"
-                class="nav-item active"
-            >
-                <span>🎤</span>
-                AI Interview
-            </a>
-
-
-            <a
-                href="#"
-                class="nav-item"
-            >
-                <span>📊</span>
-                Performance
-            </a>
-
-
-            <a
-                href="#"
-                class="nav-item"
-            >
-                <span>💡</span>
-                Career Guidance
-            </a>
-
+            <a href="{% url 'dashboard' %}" class="nav-item"><span>⌂</span>Dashboard</a>
+            <a href="{% url 'upload_resume' %}" class="nav-item"><span>📄</span>Resume</a>
+            <a href="{% url 'ai_interview' %}" class="nav-item active"><span>🎤</span>AI Interview</a>
+            <a href="{% url 'dashboard' %}" class="nav-item"><span>📊</span>Progress</a>
+            <a href="{% url 'settings' %}" class="nav-item"><span>⚙</span>Settings</a>
         </nav>
-
-
         <div class="sidebar-bottom">
-
-            <a
-                href="{% url 'settings' %}"
-                class="nav-item"
-            >
-                <span>⚙</span>
-                Settings
-            </a>
-
-
-            <a
-                href="{% url 'logout' %}"
-                class="logout"
-            >
-                <span>↪</span>
-                Logout
-            </a>
-
+            <a href="{% url 'logout' %}" class="logout"><span>↪</span>Logout</a>
         </div>
-
     </aside>
 
-
-    <!-- MAIN CONTENT -->
-
     <main class="main-content">
-
-        <!-- TOPBAR -->
-
         <header class="topbar">
-
-            <div>
-
-                <p class="welcome-small">
-                    AI POWERED INTERVIEW
-                </p>
-
-                <h1>
-                    AI Interview
-                </h1>
-
-            </div>
-
-
+            <div><p class="welcome-small">AI POWERED INTERVIEW</p><h1>AI Interview</h1></div>
             <div class="profile">
-
-                <div class="avatar">
-                    {{ request.user.username|first|upper }}
-                </div>
-
-                <div class="profile-info">
-
-                    <strong>
-                        {{ request.user.username }}
-                    </strong>
-
-                    <span>
-                        Career Explorer
-                    </span>
-
-                </div>
-
+                <div class="avatar">{{ request.user.username|first|upper }}</div>
+                <div class="profile-info"><strong>{{ request.user.username }}</strong><span>Career Explorer</span></div>
             </div>
-
         </header>
 
-
-        <!-- HERO -->
-
         <section class="interview-hero">
-
             <div>
-
-                <span class="hero-badge">
-                    ✦ AI INTERVIEW PRACTICE
-                </span>
-
-                <h2>
-                    Practice smarter.<br>
-                    Interview with confidence.
-                </h2>
-
-                <p>
-                    Improve your interview skills with
-                    realistic questions designed to help
-                    you prepare for your next opportunity.
-                </p>
-
+                <span class="hero-badge">✦ RESUME-GROUNDED PRACTICE</span>
+                <h2>Practice smarter.<br>Answer from your experience.</h2>
+                <p>The interviewer uses verified skills, projects, education, and experience from your uploaded resume.</p>
             </div>
-
-
-            <div class="hero-icon">
-                🎤
-            </div>
-
+            <div class="hero-icon">🎤</div>
         </section>
-
-
-        <!-- INTERVIEW AREA -->
 
         <section class="interview-layout">
-
-
-            <!-- SETUP CARD -->
-
             <div class="setup-card">
-
-                <div class="section-title">
-
-                    <span class="title-icon">
-                        ⚙
-                    </span>
-
-                    <div>
-
-                        <h3>
-                            Interview Setup
-                        </h3>
-
-                        <p>
-                            Configure your practice session.
-                        </p>
-
+                <div class="section-title"><span class="title-icon">⚙</span><div><h3>Interview Setup</h3><p>Choose your practice style.</p></div></div>
+                {% if latest_resume and latest_resume.parse_status == "complete" %}
+                    <div class="interview-tip" style="margin: 0 0 18px;">
+                        <strong>Resume ready</strong>
+                        <p>{{ latest_resume.resume_file.name }} · {{ latest_resume.parse_status|title }}</p>
                     </div>
-
-                </div>
-
-
-                <div class="setting">
-
-    <label>
-        Target Role
-    </label>
-
-    <select
-        id="target-role"
-        onchange="changeRole(this.value)"
-    >
-
-        <option value="Software Developer">
-            Software Developer
-        </option>
-
-        <option value="Web Developer">
-            Web Developer
-        </option>
-
-        <option value="Data Analyst">
-            Data Analyst
-        </option>
-
-        <option value="AI / ML Engineer">
-            AI / ML Engineer
-        </option>
-
-    </select>
-
-</div>
-
-
-                <div class="setting">
-
-    <label>
-        Difficulty
-    </label>
-
-    <div class="difficulty-options">
-
-        <button
-            type="button"
-            class="difficulty active"
-            data-difficulty="easy"
-            onclick="changeDifficulty('easy')"
-        >
-            Easy
-        </button>
-
-        <button
-            type="button"
-            class="difficulty"
-            data-difficulty="medium"
-            onclick="changeDifficulty('medium')"
-        >
-            Medium
-        </button>
-
-        <button
-            type="button"
-            class="difficulty"
-            data-difficulty="hard"
-            onclick="changeDifficulty('hard')"
-        >
-            Hard
-        </button>
-
-    </div>
-
-</div>
-
-
-                <div class="setting">
-
-                    <label>
-                        Interview Type
-                    </label>
-
-                    <select>
-
-                        <option>
-                            General Interview
-                        </option>
-
-                        <option>
-                            Technical Interview
-                        </option>
-
-                        <option>
-                            Behavioral Interview
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="interview-info">
-
-                    <div>
-                        <span>Questions</span>
-                        <strong>5</strong>
-                    </div>
-
-                    <div>
-                        <span>Estimated Time</span>
-                        <strong>10 min</strong>
-                    </div>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="start-btn"
-                    onclick="startInterview()"
-                >
-                    Start Interview
-                    <span>→</span>
-                </button>
-
+                {% elif latest_resume %}
+                    <div class="interview-tip" style="margin: 0 0 18px;"><strong>Resume needs readable text</strong><p>{{ latest_resume.parse_error|default:"Upload a text-based PDF to continue." }}</p></div>
+                {% else %}
+                    <div class="interview-tip" style="margin: 0 0 18px;"><strong>Upload a resume first</strong><p>Your questions will be grounded in your own work.</p></div>
+                {% endif %}
+                <div class="setting"><label for="target-role">Target Role</label><select id="target-role">
+                    <option>Software Developer</option><option>Web Developer</option><option>Data Analyst</option><option>AI / ML Engineer</option>
+                </select></div>
+                <div class="setting"><label>Difficulty</label><div class="difficulty-options">
+                    <button type="button" class="difficulty" data-difficulty="easy">Easy</button>
+                    <button type="button" class="difficulty active" data-difficulty="medium">Medium</button>
+                    <button type="button" class="difficulty" data-difficulty="hard">Hard</button>
+                </div></div>
+                <div class="setting"><label for="interview-type">Interview Type</label><select id="interview-type">
+                    <option value="general">General Interview</option><option value="technical">Technical Interview</option><option value="behavioral">Behavioral Interview</option>
+                </select></div>
+                <div class="interview-info"><div><span>Questions</span><strong>5</strong></div><div><span>Scoring</span><strong>Offline ready</strong></div></div>
+                <button type="button" class="start-btn" id="start-button" {% if not latest_resume or latest_resume.parse_status != "complete" %}disabled{% endif %}>Start Interview <span>→</span></button>
+                <p id="setup-status" role="status"></p>
             </div>
 
-
-            <!-- QUESTION CARD -->
-
-            <div class="question-card">
-
-    <div class="question-header">
-
-        <div>
-            <span class="question-label">
-                QUESTION
-            </span>
-
-            <h3 id="question-number">
-                Question 1 of 5
-            </h3>
-        </div>
-
-        <div class="question-type">
-            General
-        </div>
-
-    </div>
-
-    <div class="progress-bar">
-        <div
-            class="progress-fill"
-            id="progress-fill"
-        ></div>
-    </div>
-
-    <div class="question-content">
-
-        <div class="ai-question-icon">
-            ✦
-        </div>
-
-        <h2 id="question-text">
-            Tell me about yourself and your career goals.
-        </h2>
-
-        <p>
-            Take your time and answer naturally.
-        </p>
-
-    </div>
-
-    <textarea
-        id="answer"
-        placeholder="Type your answer here..."
-    ></textarea>
-
-    <div class="question-actions">
-
-        <button
-            type="button"
-            class="secondary-btn"
-            onclick="previousQuestion()"
-        >
-            ← Previous
-        </button>
-
-        <button
-            type="button"
-            class="next-btn"
-            onclick="nextQuestion()"
-        >
-            Next Question →
-        </button>
-
-    </div>
-
-</div>
-
+            <div class="question-card" id="question-card">
+                <div class="question-header"><div><span class="question-label">QUESTION</span><h3 id="question-number">Upload a resume to begin</h3></div><div class="question-type" id="question-type">Waiting</div></div>
+                <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+                <div class="question-content"><div class="ai-question-icon">✦</div><h2 id="question-text">Your resume-based question will appear here.</h2><p id="question-source">Answers are scored locally by default.</p></div>
+                <textarea id="answer" placeholder="Type your answer here..." disabled></textarea>
+                <div class="question-actions"><button type="button" class="secondary-btn" id="previous-button" disabled>← Previous</button><button type="button" class="secondary-btn" id="voice-button" disabled>🎙 Speak</button><button type="button" class="next-btn" id="next-button" disabled>Next Question →</button></div>
+                <p id="answer-status" role="status"></p>
+            </div>
         </section>
 
-
-        <!-- TIPS -->
-
-        <section class="interview-tip">
-
-            <div class="tip-icon">
-                💡
-            </div>
-
-            <div>
-
-                <strong>
-                    Interview Tip
-                </strong>
-
-                <p>
-                    Give specific examples from your
-                    projects, education, or experience
-                    whenever possible.
-                </p>
-
-            </div>
-
+        <section class="interview-tip" id="result-card" hidden>
+            <div class="tip-icon">✓</div><div><strong>Interview report</strong><p id="result-text"></p><p id="result-feedback"></p></div>
         </section>
-
-
-        <footer>
-
-            © 2026 CareerAI · AI Career Guidance System
-
-        </footer>
-
+        <footer>© 2026 CareerAI · AI Career Guidance System</footer>
     </main>
-
 </div>
 
-
-{{ interview_questions|json_script:"interview-data" }}
-
+<form id="csrf-form" hidden>{% csrf_token %}</form>
 <script>
-
-const interviewData = JSON.parse(
-    document.getElementById("interview-data").textContent
-);
-
-
-let selectedRole = "Software Developer";
-
-let selectedDifficulty = "easy";
-
+const startUrl = "{% url 'interview_start_api' %}";
+const answerUrl = "{% url 'interview_answer_api' %}";
+const finishUrl = "{% url 'interview_finish_api' %}";
+let sessionId = null;
+let questions = [];
 let currentQuestion = 0;
+let selectedDifficulty = "medium";
+const answers = {};
+const answerBox = document.getElementById("answer");
+const setupStatus = document.getElementById("setup-status");
+const answerStatus = document.getElementById("answer-status");
+const csrfToken = document.querySelector("#csrf-form input[name=csrfmiddlewaretoken]").value;
 
-
-/* =========================
-   GET QUESTIONS
-========================= */
-
-function getQuestions() {
-
-    return interviewData[selectedRole][selectedDifficulty];
-
+function setStatus(element, message, error = false) {
+    element.textContent = message;
+    element.style.color = error ? "#ef4444" : "";
 }
 
+async function postJson(url, payload) {
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {"Content-Type": "application/json", "X-CSRFToken": csrfToken},
+        credentials: "same-origin",
+        body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "Request failed");
+    return data;
+}
 
-/* =========================
-   UPDATE QUESTION
-========================= */
-
-function updateQuestion() {
-
-    const questions = getQuestions();
-
+function renderQuestion() {
+    if (!questions.length) return;
     const question = questions[currentQuestion];
-
-
-    document.getElementById("question-text").textContent =
-        question.question;
-
-
-    document.getElementById("question-number").textContent =
-        `Question ${currentQuestion + 1} of ${questions.length}`;
-
-
-    document.querySelector(".question-type").textContent =
-        question.type;
-
-
-    const progress =
-        ((currentQuestion + 1) / questions.length) * 100;
-
-
-    document.getElementById("progress-fill").style.width =
-        progress + "%";
-
-
-    const nextButton =
-        document.querySelector(".next-btn");
-
-
-    if (currentQuestion === questions.length - 1) {
-
-        nextButton.textContent =
-            "Finish Interview ✓";
-
-    } else {
-
-        nextButton.textContent =
-            "Next Question →";
-
-    }
-
+    document.getElementById("question-number").textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+    document.getElementById("question-type").textContent = question.category || "General";
+    document.getElementById("question-text").textContent = question.question;
+    document.getElementById("question-source").textContent = question.source_evidence ? `Resume evidence: ${question.source_evidence}` : "Grounded in your resume profile.";
+    document.getElementById("progress-fill").style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+    answerBox.value = answers[question.id] || "";
+    document.getElementById("previous-button").disabled = currentQuestion === 0;
+    document.getElementById("next-button").textContent = currentQuestion === questions.length - 1 ? "Finish Interview ✓" : "Next Question →";
+    setStatus(answerStatus, "");
 }
 
-
-/* =========================
-   CHANGE ROLE
-========================= */
-
-function changeRole(role) {
-
-    selectedRole = role;
-
-    currentQuestion = 0;
-
-    document.getElementById("answer").value = "";
-
-    updateQuestion();
-
-}
-
-
-/* =========================
-   CHANGE DIFFICULTY
-========================= */
-
-function changeDifficulty(difficulty) {
-
-    selectedDifficulty = difficulty;
-
-    currentQuestion = 0;
-
-    document.getElementById("answer").value = "";
-
-
-    document
-        .querySelectorAll(".difficulty")
-        .forEach(button => {
-
-            button.classList.remove("active");
-
+async function startInterview() {
+    const button = document.getElementById("start-button");
+    button.disabled = true;
+    setStatus(setupStatus, "Preparing grounded questions...");
+    try {
+        const data = await postJson(startUrl, {
+            role: document.getElementById("target-role").value,
+            difficulty: selectedDifficulty,
+            interview_type: document.getElementById("interview-type").value,
+            count: 5
         });
-
-
-    const selectedButton =
-        document.querySelector(
-            `.difficulty[data-difficulty="${difficulty}"]`
-        );
-
-
-    if (selectedButton) {
-
-        selectedButton.classList.add("active");
-
+        sessionId = data.session_id;
+        questions = data.questions;
+        currentQuestion = 0;
+        answerBox.disabled = false;
+        document.getElementById("next-button").disabled = false;
+        document.getElementById("voice-button").disabled = false;
+        setStatus(setupStatus, `${data.generated_by === "ai" ? "AI" : "Offline fallback"} questions ready.`);
+        renderQuestion();
+    } catch (error) {
+        button.disabled = false;
+        setStatus(setupStatus, error.message, true);
     }
-
-
-    updateQuestion();
-
 }
 
+async function submitCurrentAnswer() {
+    const question = questions[currentQuestion];
+    const answer = answerBox.value.trim();
+    answers[question.id] = answer;
+    setStatus(answerStatus, "Scoring answer...");
+    const data = await postJson(answerUrl, {question_id: question.id, answer});
+    setStatus(answerStatus, `Score: ${data.scores.overall_score}/100 · ${data.scores.feedback[0] || "Saved"}`);
+    return data;
+}
 
-/* =========================
-   NEXT QUESTION
-========================= */
-
-function nextQuestion() {
-
-    const questions = getQuestions();
-
-
-    if (currentQuestion < questions.length - 1) {
-
-        currentQuestion++;
-
-        document.getElementById("answer").value = "";
-
-        updateQuestion();
-
-    } else {
-
-        alert(
-            "You have completed the " +
-            selectedDifficulty +
-            " interview for " +
-            selectedRole +
-            "."
-        );
-
+async function nextQuestion() {
+    if (!sessionId) return;
+    const button = document.getElementById("next-button");
+    button.disabled = true;
+    try {
+        await submitCurrentAnswer();
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion += 1;
+            renderQuestion();
+        } else {
+            const report = await postJson(finishUrl, {session_id: sessionId});
+            document.getElementById("result-card").hidden = false;
+            document.getElementById("result-text").textContent = `Overall score: ${report.overall_score}/100`;
+            document.getElementById("result-feedback").textContent = `${report.recommendations.join(" ")}`;
+            setStatus(answerStatus, "Interview completed. Your report is saved.");
+        }
+    } catch (error) {
+        setStatus(answerStatus, error.message, true);
+    } finally {
+        button.disabled = false;
     }
-
 }
 
+document.querySelectorAll(".difficulty").forEach(button => button.addEventListener("click", () => {
+    document.querySelectorAll(".difficulty").forEach(item => item.classList.remove("active"));
+    button.classList.add("active");
+    selectedDifficulty = button.dataset.difficulty;
+}));
+document.getElementById("start-button").addEventListener("click", startInterview);
+document.getElementById("next-button").addEventListener("click", nextQuestion);
+document.getElementById("previous-button").addEventListener("click", () => {
+    if (currentQuestion > 0) { currentQuestion -= 1; renderQuestion(); }
+});
 
-/* =========================
-   PREVIOUS QUESTION
-========================= */
-
-function previousQuestion() {
-
-    if (currentQuestion > 0) {
-
-        currentQuestion--;
-
-        document.getElementById("answer").value = "";
-
-        updateQuestion();
-
-    }
-
+const voiceButton = document.getElementById("voice-button");
+const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (Recognition) {
+    const recognition = new Recognition();
+    recognition.lang = "en-IN";
+    recognition.interimResults = false;
+    recognition.onstart = () => { voiceButton.textContent = "⏹ Stop"; };
+    recognition.onend = () => { voiceButton.textContent = "🎙 Speak"; };
+    recognition.onresult = event => { answerBox.value = `${answerBox.value} ${event.results[0][0].transcript}`.trim(); };
+    voiceButton.addEventListener("click", () => voiceButton.textContent === "⏹ Stop" ? recognition.stop() : recognition.start());
+} else {
+    voiceButton.title = "Speech recognition is not supported; type your answer instead.";
 }
-
-
-/* =========================
-   START INTERVIEW
-========================= */
-
-function startInterview() {
-
-    currentQuestion = 0;
-
-    document.getElementById("answer").value = "";
-
-    updateQuestion();
-
-
-    document
-        .querySelector(".question-card")
-        .scrollIntoView({
-            behavior: "smooth"
-        });
-
-}
-
-
-/* =========================
-   INITIAL LOAD
-========================= */
-
-updateQuestion();
-
 </script>
-
 </body>
 </html>

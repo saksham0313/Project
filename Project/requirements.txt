@@ -1,0 +1,8 @@
+# Core offline mode (no API key or paid service required)
+Django>=6.0,<7.0
+djangorestframework>=3.17,<4.0
+pypdf>=6.0,<7.0
+python-dotenv>=1.0,<2.0
+
+# mysqlclient is optional until the project is moved from SQLite to MySQL.
+# mysqlclient>=2.2,<3.0

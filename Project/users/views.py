@@ -1,3 +1,6 @@
+import json
+import os
+
 from django.shortcuts import render, redirect
 
 from django.contrib.auth.models import User
@@ -7,12 +10,35 @@ from django.contrib.auth import authenticate, login, logout
 from .forms import RegisterForm
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.http import JsonResponse
+from django.utils import timezone
+from django.views.decorators.http import require_GET, require_POST
 
 from django.shortcuts import render, redirect
 
 from django.conf import settings
 
-from .models import Resume, UserSettings, Student
+from .models import (
+    InterviewAnswer,
+    InterviewFeedback,
+    InterviewQuestion,
+    InterviewSession,
+    Resume,
+    Student,
+    UserSettings,
+)
+from .resume_services import (
+    ResumeProcessingError,
+    build_local_profile,
+    evaluate_answer,
+    feedback_from_answers,
+    generate_career_guidance,
+    generate_interview_feedback,
+    generate_questions,
+    extract_resume_text,
+)
 
 
 
@@ -158,19 +184,64 @@ def upload_resume(request):
                 }
             )
 
-        # Save resume in the Resume database model
-        Resume.objects.create(
+        extension = os.path.splitext(resume.name or "")[1].lower()
+        if extension != ".pdf":
+            return render(
+                request,
+                "users/upload_resume.html",
+                {"user_settings": user_settings, "error": "Only PDF resumes are supported."},
+            )
+
+        max_size = getattr(settings, "RESUME_MAX_SIZE", 10 * 1024 * 1024)
+        if resume.size > max_size:
+            return render(
+                request,
+                "users/upload_resume.html",
+                {
+                    "user_settings": user_settings,
+                    "error": f"Resume must be smaller than {max_size // (1024 * 1024)} MB.",
+                },
+            )
+
+        # Extension checks alone are trivial to bypass, so also verify the PDF
+        # signature before saving user-controlled content.
+        header = resume.read(5)
+        resume.seek(0)
+        if header != b"%PDF-":
+            return render(
+                request,
+                "users/upload_resume.html",
+                {"user_settings": user_settings, "error": "The uploaded file is not a valid PDF."},
+            )
+
+        saved_resume = Resume.objects.create(
             user=request.user,
-            resume_file=resume
+            resume_file=resume,
+            parse_status="pending",
         )
+        try:
+            raw_text = extract_resume_text(saved_resume.resume_file)
+            student = Student.objects.filter(user=request.user).first()
+            saved_resume.raw_text = raw_text
+            saved_resume.parsed_profile = build_local_profile(raw_text, student)
+            saved_resume.parse_status = "complete"
+            saved_resume.parse_error = ""
+            saved_resume.save(update_fields=["raw_text", "parsed_profile", "parse_status", "parse_error"])
+            message = "Resume uploaded and locally analysed. You can now start a resume-based interview."
+        except ResumeProcessingError as exc:
+            saved_resume.parse_status = "failed"
+            saved_resume.parse_error = str(exc)[:255]
+            saved_resume.save(update_fields=["parse_status", "parse_error"])
+            message = f"Resume uploaded, but text extraction failed: {exc}"
 
         return render(
             request,
             "users/upload_resume.html",
             {
                 "user_settings": user_settings,
-                "message": "Resume uploaded successfully!"
-            }
+                "message": message,
+                "resume": saved_resume,
+            },
         )
 
     return render(
@@ -194,6 +265,15 @@ def register(request):
             user = form.save(
                 commit=False
             )
+
+            try:
+                validate_password(
+                    form.cleaned_data["password"],
+                    user=user,
+                )
+            except ValidationError as exc:
+                form.add_error("password", exc)
+                return render(request, "users/register.html", {"form": form})
 
             user.set_password(
                 form.cleaned_data["password"]
@@ -266,20 +346,7 @@ def user_logout(request):
 
 
 
-def dashboard(request):
-
-    user_settings, created = UserSettings.objects.get_or_create(
-        user=request.user
-    )
-
-    return render(
-        request,
-        "users/dashboard.html",
-        {
-            "user_settings": user_settings
-        }
-    )
-
+@login_required
 def dashboard(request):
 
     resumes = Resume.objects.filter(
@@ -290,6 +357,12 @@ def dashboard(request):
         user=request.user
     )
 
+    sessions = InterviewSession.objects.filter(user=request.user)
+    completed_sessions = sessions.filter(status="completed")
+    scores = [session.overall_score for session in completed_sessions if session.overall_score is not None]
+    average_score = round(sum(scores) / len(scores), 1) if scores else None
+    progress_label = "Ready for interview" if resumes.exists() else "Upload a resume"
+
     return render(
         request,
         "users/dashboard.html",
@@ -297,7 +370,67 @@ def dashboard(request):
             "resumes": resumes,
             "user_settings": user_settings,
             "resume_uploaded": resumes.exists(),
+            "interview_count": sessions.count(),
+            "average_score": average_score,
+            "progress_label": progress_label,
         }
+    )
+
+
+@login_required
+def career_guidance_page(request):
+    """Show resume-grounded next steps, using Gemini when configured."""
+
+    latest_resume = (
+        Resume.objects.filter(user=request.user)
+        .order_by("-uploaded_at")
+        .first()
+    )
+    guidance = None
+    generated_by = ""
+    error = ""
+
+    if request.method == "POST":
+        if latest_resume is None:
+            error = "Upload a resume before requesting career suggestions."
+        else:
+            try:
+                if not latest_resume.raw_text:
+                    latest_resume.raw_text = extract_resume_text(latest_resume.resume_file)
+                    latest_resume.parsed_profile = build_local_profile(latest_resume.raw_text)
+                    latest_resume.parse_status = "complete"
+                    latest_resume.parse_error = ""
+                    latest_resume.save(update_fields=["raw_text", "parsed_profile", "parse_status", "parse_error"])
+                profile = latest_resume.parsed_profile or build_local_profile(latest_resume.raw_text)
+                last_session = (
+                    InterviewSession.objects.filter(user=request.user, status="completed")
+                    .select_related("feedback")
+                    .first()
+                )
+                interview_feedback = None
+                if last_session and hasattr(last_session, "feedback"):
+                    interview_feedback = {
+                        "strengths": last_session.feedback.strengths,
+                        "weaknesses": last_session.feedback.weaknesses,
+                        "recommendations": last_session.feedback.recommendations,
+                    }
+                guidance, generated_by = generate_career_guidance(
+                    profile=profile,
+                    raw_text=latest_resume.raw_text,
+                    interview_feedback=interview_feedback,
+                )
+            except ResumeProcessingError as exc:
+                error = str(exc)
+
+    return render(
+        request,
+        "users/career_guidance.html",
+        {
+            "latest_resume": latest_resume,
+            "guidance": guidance,
+            "generated_by": generated_by,
+            "error": error,
+        },
     )
 
 @login_required
@@ -609,5 +742,261 @@ def ai_interview(request):
         {
             "interview_questions": interview_questions,
             "user_settings": user_settings,
+        }
+    )
+
+
+# ---------------------------------------------------------------------------
+# Resume-grounded interview workflow
+# ---------------------------------------------------------------------------
+
+@login_required
+def ai_interview_page(request):
+    user_settings, _ = UserSettings.objects.get_or_create(user=request.user)
+    latest_resume = (
+        Resume.objects.filter(user=request.user)
+        .order_by("-uploaded_at")
+        .first()
+    )
+    return render(
+        request,
+        "users/ai_interview.html",
+        {
+            "user_settings": user_settings,
+            "latest_resume": latest_resume,
+        },
+    )
+
+
+def _json_body(request):
+    try:
+        value = json.loads(request.body.decode("utf-8") or "{}")
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None
+    return value if isinstance(value, dict) else None
+
+
+@login_required
+@require_POST
+def interview_start_api(request):
+    payload = _json_body(request)
+    if payload is None:
+        return JsonResponse({"error": "Send a JSON request body."}, status=400)
+
+    role = str(payload.get("role", "Software Developer")).strip()[:100]
+    difficulty = str(payload.get("difficulty", "medium")).lower()
+    interview_type = str(payload.get("interview_type", "general")).lower()
+    try:
+        count = max(1, min(int(payload.get("count", 5)), 15))
+    except (TypeError, ValueError):
+        count = 5
+    if difficulty not in {"easy", "medium", "hard"}:
+        difficulty = "medium"
+    if interview_type not in {"general", "technical", "behavioral"}:
+        interview_type = "general"
+
+    resume = (
+        Resume.objects.filter(user=request.user)
+        .order_by("-uploaded_at")
+        .first()
+    )
+    if resume is None:
+        return JsonResponse(
+            {"error": "Upload a PDF resume before starting an interview."},
+            status=400,
+        )
+
+    if not resume.raw_text:
+        try:
+            resume.raw_text = extract_resume_text(resume.resume_file)
+            resume.parsed_profile = build_local_profile(resume.raw_text)
+            resume.parse_status = "complete"
+            resume.parse_error = ""
+            resume.save(update_fields=["raw_text", "parsed_profile", "parse_status", "parse_error"])
+        except ResumeProcessingError as exc:
+            return JsonResponse({"error": str(exc)}, status=400)
+
+    profile = resume.parsed_profile or build_local_profile(resume.raw_text)
+    questions, generated_by = generate_questions(
+        profile=profile,
+        raw_text=resume.raw_text,
+        role=role,
+        difficulty=difficulty,
+        interview_type=interview_type,
+        count=count,
+    )
+    if not questions:
+        return JsonResponse({"error": "Could not generate interview questions."}, status=503)
+
+    session = InterviewSession.objects.create(
+        user=request.user,
+        resume=resume,
+        role=role or "Software Developer",
+        difficulty=difficulty,
+        interview_type=interview_type,
+        question_count=len(questions),
+    )
+    question_rows = []
+    for index, item in enumerate(questions, start=1):
+        question_rows.append(
+            InterviewQuestion(
+                session=session,
+                order=index,
+                question_text=item["question"],
+                category=item.get("category", item.get("type", "General")),
+                source=item.get("source", generated_by),
+                source_evidence=item.get("source_evidence", ""),
+                expected_topics=item.get("expected_topics", []),
+            )
+        )
+    InterviewQuestion.objects.bulk_create(question_rows)
+
+    return JsonResponse(
+        {
+            "session_id": session.id,
+            "generated_by": generated_by,
+            "resume_profile": {
+                "skills": profile.get("skills", [])[:12],
+                "projects": [
+                    item.get("name", "")
+                    for item in profile.get("projects", [])
+                    if isinstance(item, dict)
+                ][:5],
+            },
+            "questions": [
+                {
+                    "id": question.id,
+                    "order": question.order,
+                    "question": question.question_text,
+                    "category": question.category,
+                    "source": question.source,
+                    "source_evidence": question.source_evidence,
+                }
+                for question in session.questions.all()
+            ],
+        }
+    )
+
+
+@login_required
+@require_POST
+def interview_answer_api(request):
+    payload = _json_body(request)
+    if payload is None:
+        return JsonResponse({"error": "Send a JSON request body."}, status=400)
+    try:
+        question_id = int(payload.get("question_id"))
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "A valid question_id is required."}, status=400)
+
+    question = (
+        InterviewQuestion.objects.select_related("session")
+        .filter(id=question_id, session__user=request.user)
+        .first()
+    )
+    if question is None:
+        return JsonResponse({"error": "Question not found."}, status=404)
+    answer_text = str(payload.get("answer", ""))[:12_000]
+    duration = payload.get("duration_seconds")
+    try:
+        duration = max(0, min(int(duration), 86_400)) if duration is not None else None
+    except (TypeError, ValueError):
+        duration = None
+
+    question_data = {
+        "question": question.question_text,
+        "expected_topics": question.expected_topics or [],
+    }
+    scores, generated_by = evaluate_answer(question_data, answer_text)
+    answer, _ = InterviewAnswer.objects.update_or_create(
+        question=question,
+        defaults={
+            "answer_text": answer_text,
+            "duration_seconds": duration,
+            "technical_score": scores["technical_score"],
+            "relevance_score": scores["relevance_score"],
+            "communication_score": scores["communication_score"],
+            "overall_score": scores["overall_score"],
+            "filler_count": scores["filler_count"],
+            "feedback": {"items": scores.get("feedback", []), "generated_by": generated_by},
+        },
+    )
+    return JsonResponse(
+        {
+            "answer_id": answer.id,
+            "generated_by": generated_by,
+            "scores": scores,
+        }
+    )
+
+
+@login_required
+@require_POST
+def interview_finish_api(request):
+    payload = _json_body(request)
+    if payload is None:
+        return JsonResponse({"error": "Send a JSON request body."}, status=400)
+    try:
+        session_id = int(payload.get("session_id"))
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "A valid session_id is required."}, status=400)
+    session = InterviewSession.objects.filter(id=session_id, user=request.user).first()
+    if session is None:
+        return JsonResponse({"error": "Interview session not found."}, status=404)
+
+    answer_rows = list(
+        InterviewAnswer.objects.filter(question__session=session)
+        .select_related("question")
+        .values(
+            "overall_score",
+            "filler_count",
+            "feedback",
+            "answer_text",
+            "question__question_text",
+        )
+    )
+    overall_score = round(
+        sum(float(item["overall_score"]) for item in answer_rows) / len(answer_rows),
+        2,
+    ) if answer_rows else 0.0
+    summary, feedback_generated_by = generate_interview_feedback(answer_rows)
+    session.status = "completed"
+    session.overall_score = overall_score
+    session.completed_at = timezone.now()
+    session.save(update_fields=["status", "overall_score", "completed_at"])
+    InterviewFeedback.objects.update_or_create(
+        session=session,
+        defaults={
+            **summary,
+            "generated_by": feedback_generated_by,
+        },
+    )
+    return JsonResponse(
+        {
+            "session_id": session.id,
+            "overall_score": overall_score,
+            "generated_by": feedback_generated_by,
+            **summary,
+        }
+    )
+
+
+@login_required
+@require_GET
+def interview_history_api(request):
+    sessions = InterviewSession.objects.filter(user=request.user)[:20]
+    return JsonResponse(
+        {
+            "sessions": [
+                {
+                    "id": session.id,
+                    "role": session.role,
+                    "difficulty": session.difficulty,
+                    "status": session.status,
+                    "score": session.overall_score,
+                    "started_at": session.started_at.isoformat(),
+                }
+                for session in sessions
+            ]
         }
     )
