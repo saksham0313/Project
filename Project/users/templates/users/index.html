@@ -1,48 +1,164 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Interview System - Login</title>
-    <link rel="stylesheet" href="index.css">
-
+    <meta name="description" content="CareerAI turns your resume into a personalised, voice-ready interview practice experience.">
+    <title>CareerAI | Your resume. Your interview advantage.</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'users/favicon.svg' %}">
+    <link rel="apple-touch-icon" href="{% static 'users/favicon.svg' %}">
+    <link rel="stylesheet" href="{% static 'users/index.css' %}">
 </head>
-
 <body>
+    <div class="landing-page">
+        <div class="ambient ambient-one"></div>
+        <div class="ambient ambient-two"></div>
 
-    <div class="login-container">
+        <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+            <a class="brand" href="{% url 'home' %}" aria-label="CareerAI home">
+                <span class="brand-mark">AI</span>
+                <span class="brand-copy"><strong>Career<span>AI</span></strong><small>Career readiness, upgraded.</small></span>
+            </a>
 
-        <h2>AI Interview System</h2>
-
-        <form>
-
-            <div class="input-box">
-                <label>Email</label>
-                <input type="email" placeholder="Enter your email" required>
-            </div>
-
-
-            <div class="input-box">
-                <label>Password</label>
-                <input type="password" placeholder="Enter your password" required>
-            </div>
-
-
-            <button class="login-btn" type="submit">
-                Login
+            <button class="mobile-menu" id="mobile-menu" type="button" aria-label="Open navigation" aria-expanded="false">
+                <span></span><span></span><span></span>
             </button>
 
-
-            <div class="register-link">
-                <p>
-                    Don't have an account?
-                    <a href="#">Register</a>
-                </p>
+            <div class="nav-links" id="nav-links">
+                <a href="#features">Features</a>
+                <a href="#workflow">How it works</a>
+                <a href="#why-careerai">Why CareerAI</a>
+                <a class="nav-login mobile-only" href="{% url 'login' %}">Log in</a>
+                <a class="nav-cta mobile-only" href="{% url 'register' %}">Start free <span>→</span></a>
             </div>
 
-        </form>
+            <div class="nav-actions">
+                <a class="nav-login" href="{% url 'login' %}">Log in</a>
+                <a class="nav-cta" href="{% url 'register' %}">Start free <span>→</span></a>
+            </div>
+        </nav>
 
+        <main>
+            <section class="hero section-shell" id="top">
+                <div class="hero-copy reveal">
+                    <div class="eyebrow"><span class="eyebrow-dot"></span> FREE RESUME-GROUNDED INTERVIEW PRACTICE</div>
+                    <h1>Turn your resume into your <span>next opportunity.</span></h1>
+                    <p class="hero-lead">CareerAI reads the experience you already have and turns it into a realistic interview room—complete with voice questions, smart scoring, bilingual model answers, and a report you can keep.</p>
+
+                    <div class="hero-actions">
+                        <a class="primary-button" href="{% url 'register' %}">Build my interview <span>↗</span></a>
+                        <a class="text-button" href="#workflow"><span class="play-icon">▶</span> See how it works</a>
+                    </div>
+
+                    <div class="hero-trust">
+                        <div class="trust-item"><span class="trust-icon">✓</span><span>No paid plan required</span></div>
+                        <div class="trust-item"><span class="trust-icon">◈</span><span>English + हिन्दी</span></div>
+                        <div class="trust-item"><span class="trust-icon">⌁</span><span>Voice-ready</span></div>
+                    </div>
+                </div>
+
+                <div class="hero-visual reveal reveal-delay" aria-label="Interactive CareerAI interview dashboard preview">
+                    <div class="visual-label label-top"><span class="pulse-dot"></span> LIVE PRACTICE ROOM</div>
+                    <div class="scene" id="tilt-scene">
+                        <div class="particle-field" id="particle-field" aria-hidden="true"></div>
+                        <div class="holo-stage" aria-hidden="true">
+                            <div class="holo-disc disc-back"></div>
+                            <div class="holo-disc disc-middle"></div>
+                            <div class="holo-disc disc-front"></div>
+                            <div class="ai-core"><span>✦</span><small>AI</small></div>
+                        </div>
+                        <div class="scene-grid"></div>
+                        <div class="energy-beam beam-left" aria-hidden="true"></div>
+                        <div class="energy-beam beam-right" aria-hidden="true"></div>
+                        <div class="orbit orbit-one"><i></i></div>
+                        <div class="orbit orbit-two"><i></i></div>
+                        <div class="orbit orbit-three"><i></i></div>
+                        <div class="orbit orbit-four"><i></i></div>
+
+                        <div class="dashboard-preview glass-panel">
+                            <div class="light-sweep"></div>
+                            <div class="dashboard-topline">
+                                <div class="window-dots"><i></i><i></i><i></i></div>
+                                <span class="dashboard-title">CareerAI <b>/</b> Interview room</span>
+                                <span class="live-pill"><span></span> LIVE</span>
+                            </div>
+                            <div class="dashboard-body">
+                                <div class="dashboard-sidebar">
+                                    <div class="mini-brand">AI</div>
+                                    <span class="side-line active"></span><span class="side-line"></span><span class="side-line"></span><span class="side-line short"></span>
+                                    <span class="side-bottom"></span>
+                                </div>
+                                <div class="dashboard-main">
+                                    <div class="mini-heading"><span>RESUME-GROUNDED SESSION</span><strong>Software Developer</strong></div>
+                                    <div class="mini-grid">
+                                        <div class="score-widget">
+                                            <div class="score-ring" data-score="82"><span>82</span><small>readiness</small></div>
+                                            <div class="score-copy"><strong>On track</strong><span>Answer quality</span><em>+18% this week</em></div>
+                                        </div>
+                                        <div class="signal-widget"><span class="widget-label">SKILL SIGNALS</span><div class="signal-row"><b>Python</b><i><u style="width: 88%"></u></i><span>88</span></div><div class="signal-row"><b>Django</b><i><u style="width: 76%"></u></i><span>76</span></div><div class="signal-row"><b>Communication</b><i><u style="width: 92%"></u></i><span>92</span></div></div>
+                                    </div>
+                                    <div class="question-widget">
+                                        <div class="question-meta"><span>QUESTION 07 / 15</span><span class="question-category">PROJECT DEEP-DIVE</span></div>
+                                        <p>How would you handle an ambiguous requirement connected to <strong>MySQL</strong>?</p>
+                                        <div class="question-footer"><span class="waveform"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>AI interviewer is listening…</span><b>01:24</b></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="floating-card resume-float glass-panel"><span class="float-icon purple">✦</span><span><b>Resume analysed</b><small>12 verified signals found</small></span><strong>✓</strong></div>
+                        <div class="floating-card report-float glass-panel"><span class="float-icon gold">▣</span><span><b>Report ready</b><small>English + हिन्दी answer key</small></span><strong>↓</strong></div>
+                        <div class="hud-chip hud-chip-top"><span class="hud-light"></span><span>PROFILE VECTOR</span><b>SYNCED</b></div>
+                        <div class="hud-chip hud-chip-bottom"><span class="hud-bars"><i></i><i></i><i></i><i></i><i></i></span><span>VOICE ENGINE</span><b>READY</b></div>
+                        <div class="floating-orb"><span>✦</span></div>
+                    </div>
+                    <div class="visual-label label-bottom"><span class="sparkle">✦</span> BUILT AROUND YOUR EXPERIENCE</div>
+                </div>
+            </section>
+
+            <section class="proof-strip section-shell reveal" aria-label="CareerAI highlights">
+                <div class="proof-intro">One platform. Every signal that matters.</div>
+                <div class="proof-stat"><strong data-count="40">0</strong><span>resume-based questions<br>in a hard session</span></div>
+                <div class="proof-stat"><strong data-count="2">0</strong><span>languages for every<br>professional answer</span></div>
+                <div class="proof-stat"><strong data-count="100">0</strong><span>% free local fallback<br>when AI is unavailable</span></div>
+            </section>
+
+            <section class="content-section section-shell" id="features">
+                <div class="section-heading reveal"><div><span class="eyebrow dark"><span class="eyebrow-dot"></span> ONE SMARTER PREP WORKFLOW</span><h2>Everything you need to<br><em>walk in ready.</em></h2></div><p>CareerAI connects your resume, practice room, feedback, and next steps in one focused workspace.</p></div>
+                <div class="feature-grid">
+                    <article class="feature-card featured reveal"><div class="feature-number">01</div><div class="feature-icon icon-purple">▤</div><h3>Resume intelligence</h3><p>Your PDF becomes a verified profile of skills, projects, education, and experience. No random questions detached from your story.</p><a href="{% url 'register' %}">Analyse my resume <span>↗</span></a></article>
+                    <article class="feature-card reveal reveal-delay-small"><div class="feature-number">02</div><div class="feature-icon icon-blue">✦</div><h3>Adaptive questions</h3><p>Get fresh questions every time, from warm-up to project deep-dive and realistic follow-ups.</p><a href="#workflow">Explore the flow <span>↗</span></a></article>
+                    <article class="feature-card reveal reveal-delay-small"><div class="feature-number">03</div><div class="feature-icon icon-pink">◉</div><h3>Voice interview room</h3><p>Hear questions and answer naturally with browser voice recognition in English or Hindi.</p><a href="{% url 'register' %}">Try voice practice <span>↗</span></a></article>
+                    <article class="feature-card reveal"><div class="feature-number">04</div><div class="feature-icon icon-gold">◎</div><h3>Bilingual coaching</h3><p>Understand each professional model answer in English and हिन्दी, then personalise it with your real results.</p><a href="{% url 'register' %}">See bilingual answers <span>↗</span></a></article>
+                    <article class="feature-card reveal reveal-delay-small"><div class="feature-number">05</div><div class="feature-icon icon-green">↗</div><h3>Clear scoring</h3><p>See relevance, technical quality, communication, filler words, strengths, and focus areas without guesswork.</p><a href="{% url 'register' %}">Measure my readiness <span>↗</span></a></article>
+                    <article class="feature-card reveal reveal-delay-small"><div class="feature-number">06</div><div class="feature-icon icon-violet">▣</div><h3>Keep your report</h3><p>Finish with a polished answer key and downloadable PDF report for revision before the real interview.</p><a href="{% url 'register' %}">Create my report <span>↗</span></a></article>
+                </div>
+            </section>
+
+            <section class="workflow-section" id="workflow">
+                <div class="section-shell">
+                    <div class="section-heading centered reveal"><span class="eyebrow dark"><span class="eyebrow-dot"></span> SIMPLE BY DESIGN</span><h2>From resume to <em>ready.</em></h2><p>Three focused steps. A much stronger version of your next interview answer.</p></div>
+                    <div class="workflow-grid">
+                        <article class="workflow-step reveal"><div class="step-top"><span class="step-icon">↑</span><span class="step-number">01</span></div><h3>Upload your resume</h3><p>CareerAI reads the evidence you already own—skills, projects, education, and experience.</p><div class="step-line"><span></span></div></article>
+                        <article class="workflow-step reveal reveal-delay-small"><div class="step-top"><span class="step-icon">✦</span><span class="step-number">02</span></div><h3>Enter the practice room</h3><p>Choose your role, difficulty, language, and question count. Then answer by voice or text.</p><div class="step-line"><span></span></div></article>
+                        <article class="workflow-step reveal reveal-delay"><div class="step-top"><span class="step-icon">↓</span><span class="step-number">03</span></div><h3>Leave with a plan</h3><p>Review your score, professional answers in two languages, and a PDF you can revise anytime.</p><div class="step-line"><span></span></div></article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="why-section section-shell" id="why-careerai">
+                <div class="why-copy reveal"><span class="eyebrow dark"><span class="eyebrow-dot"></span> THE CAREERAI DIFFERENCE</span><h2>Stop memorising generic answers.<br><em>Start owning your story.</em></h2><p>Most interview prep gives everyone the same script. CareerAI starts with your resume, challenges your actual experience, and shows you how to communicate it like a professional.</p><div class="check-list"><div><span>✓</span><p><strong>Grounded, not guessed.</strong><br>Your answer practice stays tied to evidence you can defend.</p></div><div><span>✓</span><p><strong>Fresh, not repetitive.</strong><br>Every new session changes the question angles and follow-ups.</p></div><div><span>✓</span><p><strong>Useful after the session.</strong><br>Your feedback and answer key become a revision plan.</p></div></div><a class="primary-button dark-button" href="{% url 'register' %}">Start my free practice <span>↗</span></a></div>
+                <div class="why-card-wrap reveal reveal-delay"><div class="why-card"><div class="why-card-head"><span class="status-chip"><i></i> YOUR READINESS MAP</span><span class="tiny-dots">•••</span></div><div class="radar-copy"><span>INTERVIEW SIGNALS</span><strong>Build confidence<br>with evidence.</strong></div><div class="bars"><div><span>Technical clarity</span><b><i style="width: 86%"></i></b><strong>86%</strong></div><div><span>Resume relevance</span><b><i style="width: 94%"></i></b><strong>94%</strong></div><div><span>Communication</span><b><i style="width: 78%"></i></b><strong>78%</strong></div></div><div class="mini-quote"><span>“</span><p>Practise the answer.<br>Own the opportunity.</p></div><div class="why-glow"></div></div></div>
+            </section>
+
+            <section class="cta-section section-shell reveal">
+                <div class="cta-glow"></div><span class="eyebrow"><span class="eyebrow-dot"></span> YOUR NEXT INTERVIEW STARTS HERE</span><h2>Ready to sound like<br><em>your strongest self?</em></h2><p>Upload your resume and let CareerAI turn preparation into momentum.</p><a class="primary-button light-button" href="{% url 'register' %}">Create my free account <span>↗</span></a><small>No credit card · Free local fallback · Your resume stays yours</small>
+            </section>
+        </main>
+
+        <footer class="site-footer section-shell"><a class="brand" href="{% url 'home' %}"><span class="brand-mark">AI</span><span class="brand-copy"><strong>Career<span>AI</span></strong><small>Career readiness, upgraded.</small></span></a><p>Resume-grounded interview practice for the real world.</p><span class="footer-copy">© 2026 CareerAI</span></footer>
     </div>
-
+    <script src="{% static 'users/landing.js' %}"></script>
 </body>
 </html>

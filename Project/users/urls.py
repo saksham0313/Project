@@ -1,10 +1,12 @@
 from django.urls import path
+from django.views.generic import RedirectView
 
 from . import views
 
 
 urlpatterns = [
-    path("", views.user_login, name="home"),
+    path("favicon.ico", RedirectView.as_view(url="/static/users/favicon.svg", permanent=False), name="favicon"),
+    path("", views.landing_page, name="home"),
     path("settings/", views.settings_page, name="settings"),
     path("register/", views.register, name="register"),
     path("login/", views.user_login, name="login"),

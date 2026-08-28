@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CareerAI">
+  <defs>
+    <linearGradient id="g" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8172ff"/>
+      <stop offset="0.52" stop-color="#5b4bff"/>
+      <stop offset="1" stop-color="#3021a9"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="12" y1="8" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" stop-opacity=".82"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#3324b2" flood-opacity=".38"/>
+    </filter>
+  </defs>
+  <rect x="3" y="3" width="58" height="58" rx="17" fill="url(#g)" filter="url(#shadow)"/>
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="none" stroke="#ffffff" stroke-opacity=".32"/>
+  <path d="M14 26c3-10 14-16 25-12 6 2 10 6 12 12-6-5-13-7-20-5-6 1-11 4-17 5Z" fill="url(#shine)" opacity=".5"/>
+  <circle cx="49" cy="15" r="2" fill="#72e1ba"/>
+  <text x="32" y="40" fill="#ffffff" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle" letter-spacing="-1">AI</text>
+  <path d="M32 45v5M25 48h14" stroke="#c9c2ff" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+</svg>

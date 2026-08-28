@@ -50,6 +50,12 @@ from .resume_services import (
 )
 
 
+def landing_page(request):
+    """Public first page explaining CareerAI before authentication."""
+
+    return render(request, "users/index.html")
+
+
 
 @login_required
 def settings_page(request):
