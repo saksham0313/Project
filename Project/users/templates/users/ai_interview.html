@@ -68,7 +68,16 @@
                 <div class="setting"><label for="interview-type">Interview Type</label><select id="interview-type">
                     <option value="general">General Interview</option><option value="technical">Technical Interview</option><option value="behavioral">Behavioral Interview</option>
                 </select></div>
-                <div class="interview-info"><div><span>Questions</span><strong>5</strong></div><div><span>Scoring</span><strong>Offline ready</strong></div></div>
+                <div class="setting"><label for="question-language">Question Language</label><select id="question-language">
+                    <option value="en">English</option><option value="hi">हिन्दी</option><option value="bilingual">English + हिन्दी</option>
+                </select></div>
+                <div class="setting"><label for="answer-language">Answer Mic Language</label><select id="answer-language">
+                    <option value="en">English (India)</option><option value="hi">हिन्दी (भारत)</option>
+                </select></div>
+                <div class="setting"><label for="question-count">Question Count</label><select id="question-count">
+                    <option value="15">15 questions</option><option value="20">20 questions</option><option value="25">25 questions</option><option value="30">30 questions</option><option value="40">40 questions</option>
+                </select><small id="count-help">Choose 15–30 questions. Hard mode automatically uses 40.</small></div>
+                <div class="interview-info"><div><span>Questions</span><strong id="question-count-display">15</strong></div><div><span>Scoring</span><strong>Offline ready</strong></div></div>
                 <button type="button" class="start-btn" id="start-button" {% if not latest_resume or latest_resume.parse_status != "complete" %}disabled{% endif %}>Start Interview <span>→</span></button>
                 <p id="setup-status" role="status"></p>
             </div>
@@ -78,13 +87,13 @@
                 <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
                 <div class="question-content"><div class="ai-question-icon">✦</div><h2 id="question-text">Your resume-based question will appear here.</h2><p id="question-source">Answers are scored locally by default.</p></div>
                 <textarea id="answer" placeholder="Type your answer here..." disabled></textarea>
-                <div class="question-actions"><button type="button" class="secondary-btn" id="previous-button" disabled>← Previous</button><button type="button" class="secondary-btn" id="voice-button" disabled>🎙 Speak</button><button type="button" class="next-btn" id="next-button" disabled>Next Question →</button></div>
+                <div class="question-actions"><button type="button" class="secondary-btn" id="previous-button" disabled>← Previous</button><button type="button" class="secondary-btn" id="speak-button" disabled>🔊 Hear question</button><button type="button" class="secondary-btn" id="voice-button" disabled>🎙 Answer by voice</button><button type="button" class="next-btn" id="next-button" disabled>Next Question →</button></div>
                 <p id="answer-status" role="status"></p>
             </div>
         </section>
 
         <section class="interview-tip" id="result-card" hidden>
-            <div class="tip-icon">✓</div><div><strong>Interview report</strong><p id="result-text"></p><p id="result-feedback"></p></div>
+            <div class="tip-icon">✓</div><div><strong>Interview report</strong><p id="result-text"></p><p id="result-feedback"></p><div class="report-actions" id="report-actions" hidden><a class="report-btn" id="report-button" href="#">View answer key <span>→</span></a><a class="report-btn secondary" id="pdf-button" href="#">Download PDF <span>↓</span></a></div></div>
         </section>
         <footer>© 2026 CareerAI · AI Career Guidance System</footer>
     </main>
@@ -99,11 +108,32 @@ let sessionId = null;
 let questions = [];
 let currentQuestion = 0;
 let selectedDifficulty = "medium";
+let selectedLanguage = "en";
+let selectedAnswerLanguage = "en";
+let questionStartedAt = null;
 const answers = {};
 const answerBox = document.getElementById("answer");
 const setupStatus = document.getElementById("setup-status");
 const answerStatus = document.getElementById("answer-status");
+const speakButton = document.getElementById("speak-button");
+const voiceButton = document.getElementById("voice-button");
+const questionCountSelect = document.getElementById("question-count");
+const questionCountDisplay = document.getElementById("question-count-display");
+const countHelp = document.getElementById("count-help");
 const csrfToken = document.querySelector("#csrf-form input[name=csrfmiddlewaretoken]").value;
+
+function syncQuestionCount() {
+    if (selectedDifficulty === "hard") {
+        questionCountSelect.value = "40";
+        questionCountSelect.disabled = true;
+        countHelp.textContent = "Hard interview is fixed at 40 questions.";
+    } else {
+        questionCountSelect.disabled = false;
+        if (questionCountSelect.value === "40") questionCountSelect.value = "15";
+        countHelp.textContent = "Choose 15–30 questions.";
+    }
+    questionCountDisplay.textContent = questionCountSelect.value;
+}
 
 function setStatus(element, message, error = false) {
     element.textContent = message;
@@ -125,6 +155,7 @@ async function postJson(url, payload) {
 function renderQuestion() {
     if (!questions.length) return;
     const question = questions[currentQuestion];
+    questionStartedAt = Date.now();
     document.getElementById("question-number").textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
     document.getElementById("question-type").textContent = question.category || "General";
     document.getElementById("question-text").textContent = question.question;
@@ -134,6 +165,37 @@ function renderQuestion() {
     document.getElementById("previous-button").disabled = currentQuestion === 0;
     document.getElementById("next-button").textContent = currentQuestion === questions.length - 1 ? "Finish Interview ✓" : "Next Question →";
     setStatus(answerStatus, "");
+    window.setTimeout(speakQuestion, 120);
+}
+
+function speakQuestion() {
+    if (!questions.length) return;
+    if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
+        setStatus(answerStatus, "Question is shown above. Browser text-to-speech is not supported.");
+        return;
+    }
+    window.speechSynthesis.cancel();
+    const questionText = questions[currentQuestion].question;
+    const parts = selectedLanguage === "bilingual" ? questionText.split(/\n+/).filter(Boolean) : [questionText];
+    const languages = selectedLanguage === "bilingual" ? ["en-IN", "hi-IN"] : [selectedLanguage === "hi" ? "hi-IN" : "en-IN"];
+    const voices = window.speechSynthesis.getVoices();
+    const pickVoice = language => voices.find(voice => voice.lang.toLowerCase() === language.toLowerCase()) || voices.find(voice => voice.lang.toLowerCase().startsWith(language.slice(0, 2).toLowerCase()));
+    let partIndex = 0;
+    const speakNext = () => {
+        if (partIndex >= parts.length) { setStatus(answerStatus, "Your answer can be typed or spoken."); return; }
+        const language = languages[Math.min(partIndex, languages.length - 1)];
+        const utterance = new SpeechSynthesisUtterance(parts[partIndex]);
+        utterance.lang = language;
+        utterance.voice = pickVoice(language) || null;
+        utterance.rate = language === "hi-IN" ? 0.80 : 0.86;
+        utterance.pitch = 0.98;
+        utterance.volume = 1;
+        if (partIndex === 0) utterance.onstart = () => setStatus(answerStatus, "AI interviewer is reading the question...");
+        utterance.onerror = () => setStatus(answerStatus, "Voice playback failed. Use ‘Hear question’ again or read the text above.", true);
+        utterance.onend = () => { partIndex += 1; window.setTimeout(speakNext, 180); };
+        window.speechSynthesis.speak(utterance);
+    };
+    speakNext();
 }
 
 async function startInterview() {
@@ -145,14 +207,17 @@ async function startInterview() {
             role: document.getElementById("target-role").value,
             difficulty: selectedDifficulty,
             interview_type: document.getElementById("interview-type").value,
-            count: 5
+            language: selectedLanguage,
+            count: Number(questionCountSelect.value)
         });
         sessionId = data.session_id;
         questions = data.questions;
+        questionCountDisplay.textContent = questions.length;
         currentQuestion = 0;
         answerBox.disabled = false;
         document.getElementById("next-button").disabled = false;
-        document.getElementById("voice-button").disabled = false;
+        speakButton.disabled = false;
+        voiceButton.disabled = false;
         setStatus(setupStatus, `${data.generated_by === "ai" ? "AI" : "Offline fallback"} questions ready.`);
         renderQuestion();
     } catch (error) {
@@ -166,7 +231,8 @@ async function submitCurrentAnswer() {
     const answer = answerBox.value.trim();
     answers[question.id] = answer;
     setStatus(answerStatus, "Scoring answer...");
-    const data = await postJson(answerUrl, {question_id: question.id, answer});
+    const duration = questionStartedAt ? Math.max(0, Math.round((Date.now() - questionStartedAt) / 1000)) : null;
+    const data = await postJson(answerUrl, {question_id: question.id, answer, duration_seconds: duration});
     setStatus(answerStatus, `Score: ${data.scores.overall_score}/100 · ${data.scores.feedback[0] || "Saved"}`);
     return data;
 }
@@ -185,6 +251,11 @@ async function nextQuestion() {
             document.getElementById("result-card").hidden = false;
             document.getElementById("result-text").textContent = `Overall score: ${report.overall_score}/100`;
             document.getElementById("result-feedback").textContent = `${report.recommendations.join(" ")}`;
+            document.getElementById("report-button").href = report.report_url;
+            document.getElementById("pdf-button").href = report.pdf_url;
+            document.getElementById("report-actions").hidden = false;
+            speakButton.disabled = true;
+            voiceButton.disabled = true;
             setStatus(answerStatus, "Interview completed. Your report is saved.");
         }
     } catch (error) {
@@ -198,26 +269,60 @@ document.querySelectorAll(".difficulty").forEach(button => button.addEventListen
     document.querySelectorAll(".difficulty").forEach(item => item.classList.remove("active"));
     button.classList.add("active");
     selectedDifficulty = button.dataset.difficulty;
+    syncQuestionCount();
 }));
+questionCountSelect.addEventListener("change", syncQuestionCount);
+document.getElementById("question-language").addEventListener("change", event => {
+    selectedLanguage = event.target.value;
+});
+document.getElementById("answer-language").addEventListener("change", event => {
+    selectedAnswerLanguage = event.target.value;
+});
 document.getElementById("start-button").addEventListener("click", startInterview);
 document.getElementById("next-button").addEventListener("click", nextQuestion);
 document.getElementById("previous-button").addEventListener("click", () => {
     if (currentQuestion > 0) { currentQuestion -= 1; renderQuestion(); }
 });
 
-const voiceButton = document.getElementById("voice-button");
+ speakButton.addEventListener("click", speakQuestion);
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (Recognition) {
     const recognition = new Recognition();
     recognition.lang = "en-IN";
-    recognition.interimResults = false;
-    recognition.onstart = () => { voiceButton.textContent = "⏹ Stop"; };
-    recognition.onend = () => { voiceButton.textContent = "🎙 Speak"; };
-    recognition.onresult = event => { answerBox.value = `${answerBox.value} ${event.results[0][0].transcript}`.trim(); };
-    voiceButton.addEventListener("click", () => voiceButton.textContent === "⏹ Stop" ? recognition.stop() : recognition.start());
+    recognition.interimResults = true;
+    recognition.continuous = true;
+    let listening = false;
+    let voiceBase = "";
+    recognition.onstart = () => { listening = true; voiceButton.textContent = "⏹ Stop listening"; setStatus(answerStatus, "Listening... speak your answer now."); };
+    recognition.onend = () => { listening = false; voiceButton.textContent = "🎙 Answer by voice"; };
+    recognition.onerror = event => { listening = false; voiceButton.textContent = "🎙 Answer by voice"; setStatus(answerStatus, `Microphone error: ${event.error}. You can type instead.`, true); };
+    recognition.onresult = event => {
+        let finalText = "";
+        let interimText = "";
+        for (let index = 0; index < event.results.length; index += 1) {
+            const transcript = event.results[index][0].transcript;
+            if (event.results[index].isFinal) finalText += `${transcript} `;
+            else interimText += `${transcript} `;
+        }
+        answerBox.value = [voiceBase, finalText.trim(), interimText.trim()].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+    };
+    voiceButton.addEventListener("click", () => {
+        if (listening) {
+            recognition.stop();
+            return;
+        }
+        voiceBase = answerBox.value.trim();
+        recognition.lang = selectedAnswerLanguage === "hi" ? "hi-IN" : "en-IN";
+        try { recognition.start(); } catch (error) { setStatus(answerStatus, "Microphone is already active. Try again in a moment.", true); }
+    });
 } else {
     voiceButton.title = "Speech recognition is not supported; type your answer instead.";
+    voiceButton.disabled = true;
+    setStatus(answerStatus, "Voice answers need Chrome or Edge. Text answers remain available.");
 }
+if (!("speechSynthesis" in window)) speakButton.disabled = true;
+syncQuestionCount();
+window.addEventListener("beforeunload", () => { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); });
 </script>
 </body>
 </html>

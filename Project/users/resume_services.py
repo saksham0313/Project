@@ -8,6 +8,7 @@ user from practising an interview.
 from __future__ import annotations
 
 import json
+import secrets
 import re
 from collections import OrderedDict
 from typing import Any
@@ -172,12 +173,25 @@ def local_questions(
     difficulty: str = "medium",
     interview_type: str = "general",
     count: int = 5,
+    language: str = "en",
 ) -> list[dict[str, Any]]:
     """Generate grounded questions from resume evidence, entirely offline."""
 
     difficulty = difficulty if difficulty in {"easy", "medium", "hard"} else "medium"
     interview_type = interview_type if interview_type in {"general", "technical", "behavioral"} else "general"
+    language = language if language in {"en", "hi", "bilingual"} else "en"
+    try:
+        target_count = max(1, min(int(count), 40))
+    except (TypeError, ValueError):
+        target_count = 15
     questions: list[dict[str, Any]] = []
+
+    def localized(english: str, hindi: str) -> str:
+        if language == "hi":
+            return hindi
+        if language == "bilingual":
+            return f"{english}\n{hindi}"
+        return english
 
     def add(text: str, category: str, source: str, evidence: str, topics: list[str]):
         questions.append(
@@ -205,7 +219,10 @@ def local_questions(
             else:
                 name, description, technologies = str(project), str(project), []
             add(
-                f"Walk me through {name}. What problem did it solve and what was your contribution?",
+                localized(
+                    f"Walk me through {name}. What problem did it solve and what was your contribution?",
+                    f"{name} प्रोजेक्ट के बारे में बताइए। इसने कौन-सी समस्या हल की और आपका योगदान क्या था?",
+                ),
                 "Project",
                 "project",
                 description,
@@ -213,7 +230,10 @@ def local_questions(
             )
             if difficulty != "easy":
                 add(
-                    f"What technical decision did you make in {name}, and what would you improve now?",
+                    localized(
+                        f"What technical decision did you make in {name}, and what would you improve now?",
+                        f"{name} में आपने कौन-सा तकनीकी निर्णय लिया था और आज आप इसमें क्या सुधार करेंगे?",
+                    ),
                     "Project Technical",
                     "project",
                     description,
@@ -222,7 +242,10 @@ def local_questions(
 
         for skill in skills[:3]:
             add(
-                f"You listed {skill} on your resume. Explain how you have used it and give one concrete example.",
+                localized(
+                    f"You listed {skill} on your resume. Explain how you have used it and give one concrete example.",
+                    f"आपने रिज्यूमे में {skill} लिखा है। आपने इसका उपयोग कैसे किया? एक वास्तविक उदाहरण दीजिए।",
+                ),
                 "Skill",
                 "skill",
                 skill,
@@ -232,7 +255,10 @@ def local_questions(
     if interview_type in {"general", "behavioral"}:
         for item in experience[:1]:
             add(
-                f"Tell me about the experience described here: {item[:160]}. What did you learn?",
+                localized(
+                    f"Tell me about the experience described here: {item[:160]}. What did you learn?",
+                    f"यहाँ दिए गए अनुभव के बारे में बताइए: {item[:160]} आपने इससे क्या सीखा?",
+                ),
                 "Experience",
                 "experience",
                 item,
@@ -240,14 +266,20 @@ def local_questions(
             )
         for item in education[:1]:
             add(
-                f"How has your education or coursework prepared you for a {role} position?",
+                localized(
+                    f"How has your education or coursework prepared you for a {role} position?",
+                    f"आपकी शिक्षा या coursework ने आपको {role} भूमिका के लिए कैसे तैयार किया?",
+                ),
                 "Education",
                 "education",
                 item,
                 ["coursework", "foundation", role],
             )
         add(
-            f"Why are you interested in working as a {role}, and which resume experience supports that choice?",
+            localized(
+                f"Why are you interested in working as a {role}, and which resume experience supports that choice?",
+                f"आप {role} के रूप में काम करने में रुचि क्यों रखते हैं और रिज्यूमे का कौन-सा अनुभव इसका समर्थन करता है?",
+            ),
             "Motivation",
             "profile",
             ", ".join(_profile_evidence(profile)[:3]) or role,
@@ -256,7 +288,10 @@ def local_questions(
 
     if not questions:
         add(
-            f"What makes you a good candidate for a {role} role? Use only the skills and experience in your profile.",
+            localized(
+                f"What makes you a good candidate for a {role} role? Use only the skills and experience in your profile.",
+                f"आप {role} भूमिका के लिए अच्छे उम्मीदवार क्यों हैं? अपने प्रोफाइल की skills और experience का उपयोग करें।",
+            ),
             "General",
             "fallback",
             role,
@@ -268,40 +303,331 @@ def local_questions(
     profile_evidence = ", ".join(_profile_evidence(profile)[:3]) or role
     generic = [
         (
-            f"Which part of your profile ({profile_evidence[:120]}) best prepares you for this role?",
+            localized(
+                f"Which part of your profile ({profile_evidence[:120]}) best prepares you for this role?",
+                f"आपके प्रोफाइल का कौन-सा भाग ({profile_evidence[:120]}) आपको इस भूमिका के लिए सबसे अच्छी तरह तैयार करता है?",
+            ),
             "Profile",
             ["profile", role, "preparation"],
         ),
         (
-            "Describe a challenge you faced while learning or building something listed in your profile.",
+            localized(
+                "Describe a challenge you faced while learning or building something listed in your profile.",
+                "अपने प्रोफाइल में दी गई किसी skill या project को सीखते या बनाते समय आई चुनौती बताइए।",
+            ),
             "Behavioral",
             ["challenge", "action", "result"],
         ),
         (
-            "What would you improve next in the work or project experience shown on your resume?",
+            localized(
+                "What would you improve next in the work or project experience shown on your resume?",
+                "रिज्यूमे में दिखाए गए work या project experience में आप अगला सुधार क्या करेंगे?",
+            ),
             "Improvement",
             ["improvement", "reason", "plan"],
         ),
         (
-            "Choose one item from your profile and explain how you would measure a successful outcome.",
+            localized(
+                "Choose one item from your profile and explain how you would measure a successful outcome.",
+                "अपने प्रोफाइल की एक item चुनिए और बताइए कि successful outcome को कैसे measure करेंगे।",
+            ),
             "Results",
             ["measurement", "outcome", "result"],
         ),
         (
-            "How would you explain one project or skill from your resume to a non-technical teammate?",
+            localized(
+                "How would you explain one project or skill from your resume to a non-technical teammate?",
+                "अपने रिज्यूमे के किसी project या skill को non-technical teammate को कैसे समझाएंगे?",
+            ),
             "Communication",
             ["explanation", "audience", "clarity"],
         ),
     ]
     for text, category, topics in generic:
-        if len(questions) >= max(1, min(int(count), 15)):
+        if len(questions) >= target_count:
             break
         add(text, category, "profile", profile_evidence, topics)
 
-    # Keep a small interview predictable while still varying the evidence.
+    # Expand sparse resumes into a realistic long-form interview. Every item
+    # still points to an exact resume/profile evidence phrase; only the angle
+    # of the question changes.
+    evidence_items = _unique(_profile_evidence(profile)) or [role]
+    variant_templates = [
+        (
+            "Explain the most important idea behind {evidence} and how you would teach it to a teammate.",
+            "{evidence} के पीछे का सबसे महत्वपूर्ण idea समझाइए और इसे teammate को कैसे सिखाएंगे?",
+            "Concept clarity",
+            ["explain", "concept", "teammate"],
+        ),
+        (
+            "What challenge could appear while working with {evidence}, and how would you investigate it?",
+            "{evidence} पर काम करते समय कौन-सी challenge आ सकती है और आप उसकी जांच कैसे करेंगे?",
+            "Problem solving",
+            ["challenge", "investigate", "solution"],
+        ),
+        (
+            "How would you measure whether your work on {evidence} was successful?",
+            "{evidence} पर आपके काम के successful होने को आप कैसे measure करेंगे?",
+            "Results",
+            ["measure", "success", "result"],
+        ),
+        (
+            "What trade-off would you consider before changing the work connected to {evidence}?",
+            "{evidence} से जुड़े काम में बदलाव करने से पहले आप किस trade-off पर विचार करेंगे?",
+            "Decision making",
+            ["trade-off", "decision", "impact"],
+        ),
+        (
+            "If you had one more week to improve {evidence}, what would you change first and why?",
+            "अगर {evidence} को बेहतर बनाने के लिए एक और सप्ताह मिले, तो आप सबसे पहले क्या बदलेंगे और क्यों?",
+            "Improvement",
+            ["improve", "priority", "reason"],
+        ),
+        (
+            "Describe one realistic edge case or failure scenario related to {evidence}.",
+            "{evidence} से जुड़ा एक realistic edge case या failure scenario बताइए।",
+            "Technical depth",
+            ["edge case", "failure", "testing"],
+        ),
+        (
+            "What did you personally learn from the work represented by {evidence}?",
+            "{evidence} से दिखने वाले काम से आपने personally क्या सीखा?",
+            "Learning",
+            ["learning", "reflection", "growth"],
+        ),
+        (
+            "How would you validate the quality of the result connected to {evidence}?",
+            "{evidence} से जुड़े result की quality को आप कैसे validate करेंगे?",
+            "Quality",
+            ["validate", "quality", "test"],
+        ),
+    ]
+    # Additional interview angles keep the offline path useful even when a
+    # resume contains only one short item. They are deliberately different
+    # prompts, so a 40-question hard interview still feels like a real panel.
+    variant_templates.extend([
+        (
+            "What assumption did you make while working with {evidence}, and how did you verify it?",
+            "{evidence} पर काम करते समय आपने कौन-सी assumption बनाई और उसे कैसे verify किया?",
+            "Reasoning",
+            ["assumption", "verify", "reasoning"],
+        ),
+        (
+            "How would you prioritize work related to {evidence} when the deadline is shortened?",
+            "अगर {evidence} की deadline कम हो जाए तो आप काम को कैसे prioritize करेंगे?",
+            "Prioritization",
+            ["priority", "deadline", "scope"],
+        ),
+        (
+            "Which metric or signal would you monitor for {evidence} after release?",
+            "{evidence} को release करने के बाद आप कौन-सा metric या signal monitor करेंगे?",
+            "Monitoring",
+            ["metric", "monitoring", "release"],
+        ),
+        (
+            "How would you test a change that affects {evidence} without breaking existing behavior?",
+            "{evidence} को प्रभावित करने वाले change को existing behavior तोड़े बिना कैसे test करेंगे?",
+            "Testing",
+            ["test", "regression", "safety"],
+        ),
+        (
+            "What would you document for another developer who has to maintain {evidence}?",
+            "जो developer {evidence} को maintain करेगा उसके लिए आप क्या document करेंगे?",
+            "Documentation",
+            ["documentation", "maintenance", "handoff"],
+        ),
+        (
+            "Tell me about a time you had to explain a decision related to {evidence} and defend it.",
+            "{evidence} से जुड़े decision को समझाकर defend करने का कोई अनुभव बताइए।",
+            "Communication",
+            ["communication", "decision", "defend"],
+        ),
+        (
+            "If {evidence} suddenly failed in production, what would you do in the first thirty minutes?",
+            "अगर production में {evidence} अचानक fail हो जाए तो पहले तीस मिनट में आप क्या करेंगे?",
+            "Incident response",
+            ["incident", "debug", "recovery"],
+        ),
+        (
+            "What security or privacy risk would you check around {evidence}?",
+            "{evidence} से जुड़ा कौन-सा security या privacy risk आप check करेंगे?",
+            "Security",
+            ["security", "privacy", "risk"],
+        ),
+        (
+            "How would you make the work behind {evidence} more accessible to its users?",
+            "{evidence} के पीछे के काम को users के लिए अधिक accessible कैसे बनाएंगे?",
+            "User focus",
+            ["users", "accessibility", "usability"],
+        ),
+        (
+            "What part of {evidence} would you automate first, and what would you keep manual?",
+            "{evidence} में आप सबसे पहले क्या automate करेंगे और क्या manual रखेंगे?",
+            "Automation",
+            ["automation", "manual", "trade-off"],
+        ),
+        (
+            "How would you estimate the effort for a new requirement involving {evidence}?",
+            "{evidence} से जुड़ी नई requirement का effort आप कैसे estimate करेंगे?",
+            "Planning",
+            ["estimate", "requirement", "planning"],
+        ),
+        (
+            "What would you do if a teammate strongly disagreed with your approach to {evidence}?",
+            "अगर teammate {evidence} के आपके approach से strongly disagree करे तो आप क्या करेंगे?",
+            "Collaboration",
+            ["collaboration", "disagreement", "resolution"],
+        ),
+        (
+            "Which part of {evidence} is hardest to scale, and how would you redesign it?",
+            "{evidence} के किस हिस्से को scale करना सबसे कठिन है और आप उसे कैसे redesign करेंगे?",
+            "Scalability",
+            ["scale", "bottleneck", "redesign"],
+        ),
+        (
+            "How would you compare two possible implementations for {evidence}?",
+            "{evidence} की दो possible implementations की तुलना आप कैसे करेंगे?",
+            "Architecture",
+            ["compare", "architecture", "criteria"],
+        ),
+        (
+            "What feedback did you receive about work related to {evidence}, and what changed afterward?",
+            "{evidence} से जुड़े काम पर आपको कौन-सा feedback मिला और उसके बाद क्या बदला?",
+            "Feedback",
+            ["feedback", "change", "growth"],
+        ),
+        (
+            "How would you reproduce a bug reported against {evidence}?",
+            "{evidence} से जुड़े reported bug को आप reproduce कैसे करेंगे?",
+            "Debugging",
+            ["bug", "reproduce", "debug"],
+        ),
+        (
+            "What data would you collect before making a major change to {evidence}?",
+            "{evidence} में बड़ा change करने से पहले आप कौन-सा data collect करेंगे?",
+            "Evidence-based decisions",
+            ["data", "decision", "impact"],
+        ),
+        (
+            "How would you handle an ambiguous requirement connected to {evidence}?",
+            "{evidence} से जुड़ी ambiguous requirement को आप कैसे handle करेंगे?",
+            "Ambiguity",
+            ["clarify", "requirement", "stakeholder"],
+        ),
+        (
+            "What would a good code review for changes to {evidence} look like?",
+            "{evidence} में changes का अच्छा code review कैसा होगा?",
+            "Code review",
+            ["review", "quality", "maintainability"],
+        ),
+        (
+            "How would you roll back a risky change involving {evidence}?",
+            "{evidence} से जुड़े risky change को आप rollback कैसे करेंगे?",
+            "Reliability",
+            ["rollback", "risk", "reliability"],
+        ),
+        (
+            "What is one limitation of the way {evidence} is currently represented on your resume?",
+            "रिज्यूमे में {evidence} को जिस तरह लिखा है उसकी एक limitation क्या है?",
+            "Self-awareness",
+            ["limitation", "honesty", "reflection"],
+        ),
+        (
+            "If you joined tomorrow, what would you want to learn first about {evidence}?",
+            "अगर आप कल join करें तो {evidence} के बारे में सबसे पहले क्या सीखना चाहेंगे?",
+            "Learning plan",
+            ["learning", "onboarding", "plan"],
+        ),
+        (
+            "How would you present the result of {evidence} to a hiring manager in one minute?",
+            "{evidence} के result को hiring manager के सामने एक मिनट में कैसे present करेंगे?",
+            "Executive communication",
+            ["summary", "impact", "communication"],
+        ),
+        (
+            "What alternative would you choose if the resources for {evidence} were cut in half?",
+            "अगर {evidence} के resources आधे हो जाएं तो आप कौन-सा alternative चुनेंगे?",
+            "Constraints",
+            ["constraints", "alternative", "prioritization"],
+        ),
+        (
+            "How would you transfer your learning from {evidence} to a new project?",
+            "{evidence} से मिली learning को नए project में कैसे apply करेंगे?",
+            "Transferable skills",
+            ["learning", "transfer", "application"],
+        ),
+        (
+            "What result from {evidence} would you be most comfortable defending with numbers?",
+            "{evidence} के किस result को आप numbers के साथ सबसे confidently defend करेंगे?",
+            "Impact",
+            ["numbers", "impact", "evidence"],
+        ),
+        (
+            "How would you decide that the work connected to {evidence} is ready to ship?",
+            "आप कैसे तय करेंगे कि {evidence} से जुड़ा काम ship करने के लिए ready है?",
+            "Delivery",
+            ["ready", "acceptance", "delivery"],
+        ),
+        (
+            "What follow-up question would you ask a stakeholder before changing {evidence}?",
+            "{evidence} बदलने से पहले stakeholder से कौन-सा follow-up question पूछेंगे?",
+            "Stakeholder management",
+            ["stakeholder", "clarify", "question"],
+        ),
+        (
+            "What is the next meaningful milestone you would set for {evidence}?",
+            "{evidence} के लिए आप अगला meaningful milestone क्या set करेंगे?",
+            "Goals",
+            ["milestone", "goal", "planning"],
+        ),
+    ])
+    # Add a fresh interviewer follow-up to each prompt. The shuffled suffixes
+    # mean even the 40-question offline format changes wording on every run,
+    # instead of merely changing question order.
+    follow_up_suffixes = [
+        (" Give a specific example and the result.", " एक specific example और result दीजिए।"),
+        (" Explain the reasoning, not just the tool name.", " सिर्फ tool का नाम नहीं, reasoning भी समझाइए।"),
+        (" Include one trade-off you would discuss.", " एक trade-off भी बताइए जिस पर चर्चा करेंगे।"),
+        (" Mention how you would validate the outcome.", " outcome को validate कैसे करेंगे, बताइए।"),
+        (" Close with the improvement you would make next.", " अंत में अगला improvement बताइए।"),
+        (" Keep the response clear enough for a two-minute answer.", " उत्तर को two-minute explanation जितना clear रखिए।"),
+        (" Say what you personally owned.", " बताइए कि आपका personal ownership क्या था।"),
+        (" Describe the first step you would take.", " पहला step क्या लेंगे, बताइए।"),
+        (" Compare it with one practical alternative.", " एक practical alternative से इसकी तुलना कीजिए।"),
+        (" Explain it so a teammate can act on it.", " इसे ऐसे समझाइए कि teammate उस पर action ले सके।"),
+        (" Mention the risk you would watch most closely.", " जिस risk को closely watch करेंगे, उसे बताइए।"),
+        (" State what evidence would prove success.", " कौन-सा evidence success prove करेगा, बताइए।"),
+        (" Describe how you would recover if it failed.", " fail होने पर recover कैसे करेंगे, बताइए।"),
+        (" Highlight the constraint you would clarify first.", " पहले कौन-सा constraint clarify करेंगे, बताइए।"),
+        (" Include the assumption you would verify.", " कौन-सी assumption verify करेंगे, बताइए।"),
+        (" Explain how you would prioritize it under a deadline.", " deadline में इसे prioritize कैसे करेंगे, बताइए।"),
+        (" Mention one edge case you would test.", " एक edge case बताइए जिसे test करेंगे।"),
+        (" Describe the feedback you would seek.", " किस feedback की जरूरत होगी, बताइए।"),
+        (" End with your next learning step.", " अंत में अपना next learning step बताइए।"),
+        (" Use a measurable outcome wherever the resume supports one.", " जहाँ resume support करे वहाँ measurable outcome दीजिए।"),
+    ]
+    secrets.SystemRandom().shuffle(follow_up_suffixes)
+    for evidence in evidence_items[:8]:
+        short_evidence = evidence[:150]
+        for template_index, (english, hindi, category, topics) in enumerate(variant_templates):
+            suffix_en, suffix_hi = follow_up_suffixes[template_index % len(follow_up_suffixes)]
+            add(
+                localized(
+                    english.format(evidence=short_evidence) + suffix_en,
+                    hindi.format(evidence=short_evidence) + suffix_hi,
+                ),
+                category,
+                "resume-evidence",
+                evidence,
+                [*topics, short_evidence],
+            )
+
+    # Use a cryptographically random order so repeated starts with the same
+    # resume do not produce the same fixed sequence.
+    secrets.SystemRandom().shuffle(questions)
     result: list[dict[str, Any]] = []
     for question in questions:
-        if len(result) >= max(1, min(int(count), 15)):
+        if len(result) >= target_count:
             break
         if not any(existing["question"] == question["question"] for existing in result):
             result.append(question)
@@ -391,7 +717,7 @@ def _provider_json(prompt: str) -> Any:
     raise ValueError(f"Unsupported provider: {provider}")
 
 
-def _valid_ai_questions(value: Any, raw_text: str, count: int) -> list[dict[str, Any]]:
+def _valid_ai_questions(value: Any, raw_text: str, count: int, language: str = "en") -> list[dict[str, Any]]:
     if isinstance(value, dict):
         value = value.get("questions", [])
     if not isinstance(value, list):
@@ -404,6 +730,13 @@ def _valid_ai_questions(value: Any, raw_text: str, count: int) -> list[dict[str,
         question = str(item.get("question", "")).strip()
         evidence = str(item.get("source_evidence", item.get("evidence", ""))).strip()
         if len(question) < 12 or not evidence or evidence.casefold() not in resume_lower:
+            continue
+        # Gemini can occasionally ignore the requested language. Reject that
+        # response so the deterministic Hindi/bilingual fallback is used.
+        has_devanagari = bool(re.search(r"[\u0900-\u097F]", question))
+        if language == "hi" and not has_devanagari:
+            continue
+        if language == "bilingual" and ("\n" not in question or not has_devanagari):
             continue
         grounded.append(
             {
@@ -427,25 +760,48 @@ def generate_questions(
     difficulty: str,
     interview_type: str,
     count: int,
+    language: str = "en",
 ) -> tuple[list[dict[str, Any]], str]:
-    fallback = local_questions(profile, role, difficulty, interview_type, count)
+    language = language if language in {"en", "hi", "bilingual"} else "en"
+    count = max(1, min(int(count), 40))
+    fallback = local_questions(profile, role, difficulty, interview_type, count, language)
     if not getattr(settings, "AI_ENABLED", False) or getattr(settings, "AI_PROVIDER", "local") == "local":
         return fallback, "local"
 
     prompt = f"""
-Create {count} {difficulty} {interview_type} interview questions for the role {role}.
+Create a fresh set of exactly {count} {difficulty} {interview_type} interview questions for the role {role}.
 Use only the verified resume text below. Never invent a skill, project, employer,
 technology, qualification, or experience. Every question must cite an exact
 source_evidence phrase copied from the resume. Return JSON with a questions array;
 each item must contain question, category, source, source_evidence, expected_topics.
+LANGUAGE: {language}. For hi, write the question in natural Hindi using Devanagari
+while keeping technical terms in English. For bilingual, put the English question
+first and the Hindi translation on the next line. For en, write only English.
+Interview order should feel real: warm-up, resume verification, project/skill
+deep-dive, problem solving, behavioral follow-ups, and a closing question. Every
+question must use a different angle; do not repeat a previous question or merely
+change one word. This run variation token is {secrets.token_hex(6)}.
 
 RESUME TEXT:
 {raw_text[:20000]}
 """.strip()
     try:
-        questions = _valid_ai_questions(_provider_json(prompt), raw_text, count)
-        if len(questions) >= max(1, min(count, 3)):
-            return questions, "ai"
+        questions = _valid_ai_questions(_provider_json(prompt), raw_text, count, language)
+        if questions:
+            # A free model may return fewer items than requested. Fill the rest
+            # with fresh, resume-grounded local questions instead of silently
+            # shrinking the interview.
+            combined: list[dict[str, Any]] = []
+            seen: set[str] = set()
+            for item in [*questions, *fallback]:
+                key = item["question"].casefold()
+                if key not in seen:
+                    seen.add(key)
+                    combined.append(item)
+                if len(combined) >= count:
+                    break
+            if len(combined) >= count:
+                return combined, "ai"
     except Exception:
         pass
     return fallback, "local-fallback"
@@ -708,3 +1064,184 @@ ANSWERS JSON:
     except Exception:
         pass
     return fallback, "local-fallback"
+
+
+def _local_professional_answer(question: dict[str, Any], role: str) -> dict[str, str]:
+    """Create a truthful, interview-ready answer without an external API."""
+
+    evidence = str(question.get("source_evidence", "")).strip() or role or "my resume"
+    evidence = evidence[:180]
+    category = str(question.get("category", question.get("type", "General"))).strip()
+    topics = [str(item).strip() for item in question.get("expected_topics", []) if str(item).strip()]
+    topic_text = ", ".join(_unique(topics)[:4]) or "context, contribution, result, and learning"
+    focus = re.sub(r"\s+", " ", str(question.get("question", "")).splitlines()[0]).strip()[:140]
+    focus = focus or f"the {category.casefold() or 'interview'} discussion"
+    fresh_en, fresh_hi = secrets.choice(
+        [
+            ("I would keep the explanation evidence-led and concise.", "मैं explanation को evidence-led और concise रखूंगा।"),
+            ("I would lead with the decision and then support it with the example.", "मैं पहले decision बताऊंगा और फिर उसे example से support करूंगा।"),
+            ("I would make the outcome clear before adding implementation detail.", "मैं implementation detail से पहले outcome को clear करूंगा।"),
+            ("I would be precise about what I personally did and what I learned.", "मैं अपने personal work और learning को precisely बताऊंगा।"),
+        ]
+    )
+
+    if "behavior" in category.casefold() or "experience" in category.casefold():
+        english = (
+            f"I would answer this with a STAR example from {evidence}. I would briefly explain the situation and the goal, "
+            f"then separate my personal responsibility from the team's work. My actions would cover {topic_text}; I would explain "
+            "the decision I made, how I handled the constraint, and how I collaborated. I would finish with the verified result, "
+            f"what I learned, and what I would do better next time. The specific point I would address here is: {focus}. {fresh_en} "
+            "I would use the exact metric from my project rather than guessing."
+        )
+        hindi = (
+            f"मैं इस प्रश्न का उत्तर {evidence} से जुड़े STAR example से दूंगा। पहले situation और goal बताऊंगा, फिर team के काम से "
+            f"अपना personal contribution अलग करूंगा। मेरा action {topic_text} पर focus करेगा; मैं अपने decision, constraint और collaboration "
+            f"को स्पष्ट करूंगा। इस प्रश्न का specific focus “{focus}” रहेगा। {fresh_hi} अंत में verified result, मिली learning और अगली बार का "
+            "improvement बताऊंगा। Resume में उपलब्ध न होने वाला कोई metric मैं guess नहीं करूंगा।"
+        )
+    elif "project" in category.casefold() or "technical" in category.casefold() or "skill" in category.casefold():
+        english = (
+            f"I would ground my answer in the resume evidence {evidence}. I would start with the problem and the success criteria, "
+            f"then explain how I applied the relevant ideas—{topic_text}—and what part I personally owned. I would mention the main "
+            f"trade-off, the tests or checks used to validate the work, and the result that is actually supported by my resume. The key "
+            f"point for this question is {focus}. {fresh_en} I would close with one lesson and a concrete improvement I would make in "
+            "the next iteration."
+        )
+        hindi = (
+            f"मैं अपने उत्तर को रिज्यूमे के evidence {evidence} से जोड़ूंगा। पहले problem और success criteria बताऊंगा, फिर समझाऊंगा कि "
+            f"मैंने {topic_text} जैसे relevant ideas को कैसे apply किया और मेरा personal ownership क्या था। Main trade-off, work को validate "
+            f"करने के tests/checks और resume से supported result बताऊंगा। इस प्रश्न का key point “{focus}” है। {fresh_hi} अंत में एक learning "
+            "और next iteration का concrete improvement साझा करूंगा।"
+        )
+    else:
+        english = (
+            f"A strong answer should connect this question to {evidence}. I would give the context first, explain my responsibility and "
+            f"the reasoning behind my approach, and cover {topic_text}. I would support the explanation with one specific example, state "
+            f"the verified outcome, and acknowledge any detail that is not recorded on my resume. The part I would answer most directly is "
+            f"{focus}. {fresh_en} I would finish with the lesson and the next step I would take in a real workplace."
+        )
+        hindi = (
+            f"एक strong answer इस प्रश्न को {evidence} से जोड़ेगा। मैं पहले context, अपनी responsibility और approach के पीछे का reasoning "
+            f"बताऊंगा और {topic_text} को cover करूंगा। एक specific example और verified outcome दूंगा; जो detail resume में नहीं है उसे साफ़ "
+            f"बताऊंगा, invent नहीं करूंगा। इस प्रश्न में मैं “{focus}” को directly address करूंगा। {fresh_hi} अंत में मिली learning और real "
+            "workplace में लिया जाने वाला next step बताऊंगा।"
+        )
+    return {"answer_en": english, "answer_hi": hindi}
+
+
+def _valid_professional_answers(value: Any, questions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Validate a provider answer key and align it to the session order."""
+
+    if isinstance(value, dict):
+        value = value.get("answers", [])
+    if not isinstance(value, list):
+        return []
+    by_order = {}
+    for index, question in enumerate(questions, start=1):
+        try:
+            order = int(question.get("order", index))
+        except (TypeError, ValueError):
+            order = index
+        by_order[order] = question
+
+    valid: dict[int, dict[str, Any]] = {}
+    seen_answers: set[str] = set()
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        try:
+            order = int(item.get("order"))
+        except (TypeError, ValueError):
+            continue
+        question = by_order.get(order)
+        if question is None:
+            continue
+        english = str(item.get("answer_en", item.get("english", item.get("answer_english", "")))).strip()
+        hindi = str(item.get("answer_hi", item.get("hindi", item.get("answer_hindi", "")))).strip()
+        if len(english) < 40 or len(hindi) < 30 or not re.search(r"[\u0900-\u097F]", hindi):
+            continue
+        answer_key = english.casefold()
+        if answer_key in seen_answers:
+            continue
+        seen_answers.add(answer_key)
+        valid[order] = {
+            "order": order,
+            "question": str(question.get("question", ""))[:2000],
+            "category": str(question.get("category", question.get("type", "General")))[:80],
+            "source_evidence": str(question.get("source_evidence", ""))[:255],
+            "answer_en": english[:5000],
+            "answer_hi": hindi[:5000],
+            "generated_by": "ai",
+        }
+    return [valid[order] for order in sorted(valid) if order in valid]
+
+
+def generate_professional_answers(
+    questions: list[dict[str, Any]],
+    profile: dict[str, Any],
+    raw_text: str,
+    role: str,
+    difficulty: str = "medium",
+) -> tuple[list[dict[str, Any]], str]:
+    """Generate a bilingual answer key for every question in one interview."""
+
+    local_answers: list[dict[str, Any]] = []
+    for index, question in enumerate(questions, start=1):
+        item = dict(question)
+        item["order"] = question.get("order", index)
+        local = _local_professional_answer(item, role)
+        local_answers.append(
+            {
+                "order": int(item["order"]),
+                "question": str(item.get("question", ""))[:2000],
+                "category": str(item.get("category", item.get("type", "General")))[:80],
+                "source_evidence": str(item.get("source_evidence", ""))[:255],
+                **local,
+                "generated_by": "local",
+            }
+        )
+
+    if not questions or not getattr(settings, "AI_ENABLED", False) or getattr(settings, "AI_PROVIDER", "local") == "local":
+        return local_answers, "local"
+
+    question_payload = [
+        {
+            "order": int(item.get("order", index)),
+            "question": str(item.get("question", ""))[:1200],
+            "category": str(item.get("category", item.get("type", "General")))[:80],
+            "source_evidence": str(item.get("source_evidence", ""))[:255],
+        }
+        for index, item in enumerate(questions, start=1)
+    ]
+    prompt = f"""
+Create one professional model answer for EVERY interview question below for a {role} candidate.
+Return JSON with an answers array. Each item must contain order, answer_en, and answer_hi.
+answer_en must be a natural 80-150 word English sample answer. answer_hi must be a natural
+Hindi translation in Devanagari, keeping technical terms in English. Use first person only
+for facts explicitly supported by the resume. Never invent a tool, employer, qualification,
+responsibility, metric, or result. If a contribution or number is missing, explain what the
+candidate should verify or say instead of guessing. Each answer must directly address its
+question, use its source_evidence, and have a different structure from the other answers.
+These are model answers for practice, not hiring decisions. Variation token: {secrets.token_hex(8)}
+
+QUESTIONS JSON:
+{json.dumps(question_payload, ensure_ascii=False)}
+
+PROFILE JSON:
+{json.dumps(profile, ensure_ascii=False)[:9000]}
+
+RESUME TEXT:
+{raw_text[:16000]}
+""".strip()
+    try:
+        ai_answers = _valid_professional_answers(_provider_json(prompt), question_payload)
+        ai_by_order = {int(item["order"]): item for item in ai_answers}
+        combined: list[dict[str, Any]] = []
+        for local in local_answers:
+            replacement = ai_by_order.get(int(local["order"]))
+            combined.append(replacement or local)
+        if ai_answers:
+            return combined, "ai+local" if len(ai_answers) < len(questions) else "ai"
+    except Exception:
+        pass
+    return local_answers, "local-fallback"

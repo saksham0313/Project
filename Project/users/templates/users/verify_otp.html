@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP | CareerAI</title>
+    <link rel="stylesheet" href="{% static 'users/login.css' %}">
+</head>
+<body>
+    <div class="login-page">
+        <section class="intro-section">
+            <div class="brand">
+                <div class="brand-icon">AI</div>
+                <div><h2>Career<span>AI</span></h2><p>AI Career Guidance</p></div>
+            </div>
+            <div class="intro-content">
+                <span class="ai-badge">✦ VERIFY YOUR IDENTITY</span>
+                <h1>One small step<br><span>then you are back in.</span></h1>
+                <p>Enter the one-time code sent to your registered email. The code expires automatically for your safety.</p>
+                <div class="features">
+                    <div class="feature"><div class="feature-icon">🔢</div><div><strong>Six-digit OTP</strong><p>Use the latest code from CareerAI.</p></div></div>
+                    <div class="feature"><div class="feature-icon">⏱</div><div><strong>10-minute validity</strong><p>Expired codes cannot be reused.</p></div></div>
+                    <div class="feature"><div class="feature-icon">🛡</div><div><strong>Limited attempts</strong><p>Incorrect guesses are rate-limited.</p></div></div>
+                </div>
+            </div>
+            <div class="intro-footer">© 2026 CareerAI · AI Career Guidance System</div>
+        </section>
+
+        <section class="login-section">
+            <div class="login-card">
+                <div class="mobile-logo"><div class="brand-icon">AI</div><h2>Career<span>AI</span></h2></div>
+                <div class="form-header">
+                    <span class="form-badge">OTP VERIFICATION</span>
+                    <h1>Check your email</h1>
+                    <p>We sent a six-digit OTP to <strong>{{ masked_email }}</strong>.</p>
+                </div>
+
+                {% if error %}<p class="auth-message error" role="alert">{{ error }}</p>{% endif %}
+                {% if messages %}{% for message in messages %}<p class="auth-message {{ message.tags }}" role="status">{{ message }}</p>{% endfor %}{% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="django-form">
+                        <p>
+                            <label for="otp">One-time password</label>
+                            <input class="otp-input" type="text" name="otp" id="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required autofocus>
+                        </p>
+                    </div>
+                    <button type="submit" class="login-btn"><span>Verify OTP</span><strong>→</strong></button>
+                </form>
+
+                <form method="post" action="{% url 'resend_password_otp' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="secondary-auth-btn">Resend OTP</button>
+                </form>
+
+                <div class="back-link"><a href="{% url 'forgot_password' %}">Use a different email</a></div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

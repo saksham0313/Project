@@ -1,18 +1,25 @@
 import json
 import os
+import secrets
+import time
 
 from django.shortcuts import render, redirect
 
 from django.contrib.auth.models import User
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from django.contrib.auth.hashers import check_password, make_password
 
 from .forms import RegisterForm
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.http import JsonResponse
+from django.core.mail import EmailMultiAlternatives
+from django.http import HttpResponse, JsonResponse
+from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
@@ -29,6 +36,7 @@ from .models import (
     Student,
     UserSettings,
 )
+from .pdf_reports import build_interview_report_pdf
 from .resume_services import (
     ResumeProcessingError,
     build_local_profile,
@@ -36,6 +44,7 @@ from .resume_services import (
     feedback_from_answers,
     generate_career_guidance,
     generate_interview_feedback,
+    generate_professional_answers,
     generate_questions,
     extract_resume_text,
 )
@@ -253,6 +262,230 @@ def upload_resume(request):
     )
 
 
+PASSWORD_RESET_SESSION_KEYS = (
+    "password_reset_email",
+    "password_reset_otp_hash",
+    "password_reset_sent_at",
+    "password_reset_attempts",
+    "password_reset_verified",
+    "password_reset_verified_at",
+)
+
+
+def _clear_password_reset_session(request):
+    for key in PASSWORD_RESET_SESSION_KEYS:
+        request.session.pop(key, None)
+    request.session.modified = True
+
+
+def _password_reset_user(request):
+    email = str(request.session.get("password_reset_email", "")).strip().lower()
+    if not email:
+        return None
+    return User.objects.filter(email__iexact=email, is_active=True).order_by("id").first()
+
+
+def _password_reset_expired(request, timestamp_key="password_reset_sent_at"):
+    try:
+        started_at = float(request.session.get(timestamp_key, 0))
+    except (TypeError, ValueError):
+        return True
+    expiry = max(60, int(getattr(settings, "PASSWORD_RESET_OTP_EXPIRY_SECONDS", 600)))
+    return not started_at or (time.time() - started_at) > expiry
+
+
+def _mask_email(email):
+    local, separator, domain = email.partition("@")
+    if not separator:
+        return email
+    if len(local) <= 2:
+        masked_local = local[:1] + "*"
+    else:
+        masked_local = f"{local[0]}{'*' * max(1, len(local) - 2)}{local[-1]}"
+    return f"{masked_local}@{domain}"
+
+
+def _send_password_reset_otp(request, user):
+    """Create a short-lived hashed OTP and send it through configured email."""
+
+    otp = f"{secrets.randbelow(1_000_000):06d}"
+    email = user.email.strip().lower()
+    request.session["password_reset_email"] = email
+    request.session["password_reset_otp_hash"] = make_password(otp)
+    request.session["password_reset_sent_at"] = int(time.time())
+    request.session["password_reset_attempts"] = 0
+    request.session["password_reset_verified"] = False
+    request.session.pop("password_reset_verified_at", None)
+    request.session.modified = True
+
+    expiry_minutes = max(1, int(getattr(settings, "PASSWORD_RESET_OTP_EXPIRY_SECONDS", 600) / 60))
+    subject = "CareerAI password reset OTP"
+    body = (
+        f"Hello {user.get_short_name() or user.username},\n\n"
+        f"Your CareerAI password reset OTP is: {otp}\n\n"
+        f"This OTP expires in {expiry_minutes} minutes. Do not share it with anyone.\n\n"
+        "If you did not request a password reset, you can ignore this email.\n"
+        "CareerAI"
+    )
+    try:
+        html_body = render_to_string(
+            "users/emails/password_reset_otp.html",
+            {
+                "otp": otp,
+                "display_name": user.get_short_name() or user.username,
+                "email": email,
+                "expiry_minutes": expiry_minutes,
+            },
+        )
+        message = EmailMultiAlternatives(
+            subject,
+            body,
+            getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@careerai.local"),
+            [email],
+        )
+        message.attach_alternative(html_body, "text/html")
+        sent_count = message.send(fail_silently=False)
+    except Exception:
+        _clear_password_reset_session(request)
+        return False
+    if sent_count < 1:
+        _clear_password_reset_session(request)
+        return False
+    return True
+
+
+def forgot_password(request):
+    if request.method == "POST":
+        email = str(request.POST.get("email", "")).strip().lower()
+        if not email:
+            return render(request, "users/forgot_password.html", {"error": "Enter your registered email address."})
+
+        user = User.objects.filter(email__iexact=email, is_active=True).order_by("id").first()
+        if user is None or not user.email:
+            return render(
+                request,
+                "users/forgot_password.html",
+                {"error": "No active account was found with this email address.", "email": email},
+            )
+
+        if not _send_password_reset_otp(request, user):
+            return render(
+                request,
+                "users/forgot_password.html",
+                {
+                    "error": "OTP email could not be sent. Check your email settings and try again.",
+                    "email": email,
+                },
+            )
+        return redirect("verify_password_otp")
+
+    return render(request, "users/forgot_password.html")
+
+
+def verify_password_otp(request):
+    email = str(request.session.get("password_reset_email", "")).strip().lower()
+    if not email:
+        return redirect("forgot_password")
+    if _password_reset_expired(request):
+        _clear_password_reset_session(request)
+        messages.error(request, "That OTP expired. Request a new one.")
+        return redirect("forgot_password")
+
+    error = ""
+    if request.method == "POST":
+        entered_otp = str(request.POST.get("otp", "")).strip()
+        try:
+            attempts = int(request.session.get("password_reset_attempts", 0))
+        except (TypeError, ValueError):
+            attempts = 0
+        max_attempts = max(3, int(getattr(settings, "PASSWORD_RESET_MAX_ATTEMPTS", 5)))
+        if attempts >= max_attempts:
+            _clear_password_reset_session(request)
+            messages.error(request, "Too many incorrect attempts. Request a new OTP.")
+            return redirect("forgot_password")
+
+        request.session["password_reset_attempts"] = attempts + 1
+        stored_hash = request.session.get("password_reset_otp_hash", "")
+        if len(entered_otp) != 6 or not entered_otp.isdigit() or not stored_hash or not check_password(entered_otp, stored_hash):
+            error = f"Incorrect OTP. You have {max(0, max_attempts - attempts - 1)} attempts left."
+        else:
+            request.session["password_reset_verified"] = True
+            request.session["password_reset_verified_at"] = int(time.time())
+            request.session.pop("password_reset_otp_hash", None)
+            request.session.modified = True
+            return redirect("password_reset_new")
+
+    return render(
+        request,
+        "users/verify_otp.html",
+        {"masked_email": _mask_email(email), "error": error},
+    )
+
+
+def resend_password_otp(request):
+    if request.method != "POST":
+        return redirect("verify_password_otp")
+    user = _password_reset_user(request)
+    if user is None:
+        _clear_password_reset_session(request)
+        messages.error(request, "Start the password reset again.")
+        return redirect("forgot_password")
+
+    try:
+        sent_at = float(request.session.get("password_reset_sent_at", 0))
+    except (TypeError, ValueError):
+        sent_at = 0
+    cooldown = max(10, int(getattr(settings, "PASSWORD_RESET_RESEND_COOLDOWN_SECONDS", 30)))
+    if sent_at and (time.time() - sent_at) < cooldown:
+        messages.error(request, f"Wait {cooldown} seconds before requesting another OTP.")
+        return redirect("verify_password_otp")
+
+    if _send_password_reset_otp(request, user):
+        messages.success(request, "A new OTP was sent to your registered email.")
+    else:
+        messages.error(request, "OTP email could not be sent. Check your email settings.")
+    return redirect("verify_password_otp")
+
+
+def password_reset_new(request):
+    if not request.session.get("password_reset_verified") or _password_reset_expired(request, "password_reset_verified_at"):
+        _clear_password_reset_session(request)
+        messages.error(request, "Verify a valid OTP before setting a new password.")
+        return redirect("forgot_password")
+
+    user = _password_reset_user(request)
+    if user is None:
+        _clear_password_reset_session(request)
+        messages.error(request, "That account is no longer available.")
+        return redirect("forgot_password")
+
+    errors = []
+    if request.method == "POST":
+        password = request.POST.get("password", "")
+        confirm_password = request.POST.get("confirm_password", "")
+        if password != confirm_password:
+            errors.append("Passwords do not match.")
+        if not password:
+            errors.append("Enter a new password.")
+        if not errors:
+            try:
+                validate_password(password, user=user)
+            except ValidationError as exc:
+                errors.extend(exc.messages)
+        if not errors:
+            user.set_password(password)
+            user.save(update_fields=["password"])
+            _clear_password_reset_session(request)
+            messages.success(request, "Password changed successfully. Sign in with your new password.")
+            return redirect("login")
+
+    return render(
+        request,
+        "users/reset_password.html",
+        {"errors": errors, "masked_email": _mask_email(user.email)},
+    )
+
+
 
 def register(request):
 
@@ -327,6 +560,8 @@ def user_login(request):
             return redirect(
                 "dashboard"
             )
+
+        messages.error(request, "Invalid username or password.")
 
 
     return render(
@@ -786,14 +1021,21 @@ def interview_start_api(request):
     role = str(payload.get("role", "Software Developer")).strip()[:100]
     difficulty = str(payload.get("difficulty", "medium")).lower()
     interview_type = str(payload.get("interview_type", "general")).lower()
+    language = str(payload.get("language", "en")).strip().lower()
+    # Normal interviews are intentionally substantial (15–30 questions).
+    # Hard interviews always run the full 40-question format, regardless of
+    # the value sent by an older client.
     try:
-        count = max(1, min(int(payload.get("count", 5)), 15))
+        requested_count = int(payload.get("count", 15))
     except (TypeError, ValueError):
-        count = 5
+        requested_count = 15
     if difficulty not in {"easy", "medium", "hard"}:
         difficulty = "medium"
     if interview_type not in {"general", "technical", "behavioral"}:
         interview_type = "general"
+    if language not in {"en", "hi", "bilingual"}:
+        language = "en"
+    count = 40 if difficulty == "hard" else max(15, min(requested_count, 30))
 
     resume = (
         Resume.objects.filter(user=request.user)
@@ -824,6 +1066,7 @@ def interview_start_api(request):
         difficulty=difficulty,
         interview_type=interview_type,
         count=count,
+        language=language,
     )
     if not questions:
         return JsonResponse({"error": "Could not generate interview questions."}, status=503)
@@ -855,6 +1098,7 @@ def interview_start_api(request):
         {
             "session_id": session.id,
             "generated_by": generated_by,
+            "language": language,
             "resume_profile": {
                 "skills": profile.get("skills", [])[:12],
                 "projects": [
@@ -940,9 +1184,28 @@ def interview_finish_api(request):
         session_id = int(payload.get("session_id"))
     except (TypeError, ValueError):
         return JsonResponse({"error": "A valid session_id is required."}, status=400)
-    session = InterviewSession.objects.filter(id=session_id, user=request.user).first()
+    session = InterviewSession.objects.select_related("resume").filter(id=session_id, user=request.user).first()
     if session is None:
         return JsonResponse({"error": "Interview session not found."}, status=404)
+
+    # Finishing is idempotent: refreshing the report must not regenerate a
+    # different answer key for the same interview.
+    if session.status == "completed" and hasattr(session, "feedback"):
+        feedback = _professional_answer_key_for_session(session, session.feedback)
+        return JsonResponse(
+            {
+                "session_id": session.id,
+                "overall_score": session.overall_score or 0.0,
+                "generated_by": feedback.generated_by,
+                "answers_generated_by": "stored",
+                "report_url": reverse("interview_report", args=[session.id]),
+                "pdf_url": reverse("interview_report_pdf", args=[session.id]),
+                "strengths": feedback.strengths,
+                "weaknesses": feedback.weaknesses,
+                "recommendations": feedback.recommendations,
+                "professional_answers": feedback.professional_answers,
+            }
+        )
 
     answer_rows = list(
         InterviewAnswer.objects.filter(question__session=session)
@@ -953,6 +1216,7 @@ def interview_finish_api(request):
             "feedback",
             "answer_text",
             "question__question_text",
+            "question__order",
         )
     )
     overall_score = round(
@@ -960,6 +1224,26 @@ def interview_finish_api(request):
         2,
     ) if answer_rows else 0.0
     summary, feedback_generated_by = generate_interview_feedback(answer_rows)
+    session_questions = list(session.questions.all())
+    question_payload = [
+        {
+            "order": question.order,
+            "question": question.question_text,
+            "category": question.category,
+            "source_evidence": question.source_evidence,
+            "expected_topics": question.expected_topics or [],
+        }
+        for question in session_questions
+    ]
+    resume_profile = session.resume.parsed_profile if session.resume else {}
+    resume_text = session.resume.raw_text if session.resume else ""
+    professional_answers, answers_generated_by = generate_professional_answers(
+        questions=question_payload,
+        profile=resume_profile or {},
+        raw_text=resume_text or "",
+        role=session.role,
+        difficulty=session.difficulty,
+    )
     session.status = "completed"
     session.overall_score = overall_score
     session.completed_at = timezone.now()
@@ -968,6 +1252,7 @@ def interview_finish_api(request):
         session=session,
         defaults={
             **summary,
+            "professional_answers": professional_answers,
             "generated_by": feedback_generated_by,
         },
     )
@@ -976,9 +1261,113 @@ def interview_finish_api(request):
             "session_id": session.id,
             "overall_score": overall_score,
             "generated_by": feedback_generated_by,
+            "answers_generated_by": answers_generated_by,
+            "report_url": reverse("interview_report", args=[session.id]),
+            "pdf_url": reverse("interview_report_pdf", args=[session.id]),
+            "professional_answers": professional_answers,
             **summary,
         }
     )
+
+
+def _professional_answer_key_for_session(session, feedback):
+    """Backfill the answer key for sessions completed before this feature."""
+
+    if feedback.professional_answers:
+        return feedback
+    session_questions = list(session.questions.all())
+    question_payload = [
+        {
+            "order": question.order,
+            "question": question.question_text,
+            "category": question.category,
+            "source_evidence": question.source_evidence,
+            "expected_topics": question.expected_topics or [],
+        }
+        for question in session_questions
+    ]
+    resume = session.resume
+    answers, _ = generate_professional_answers(
+        questions=question_payload,
+        profile=(resume.parsed_profile if resume else {}) or {},
+        raw_text=(resume.raw_text if resume else "") or "",
+        role=session.role,
+        difficulty=session.difficulty,
+    )
+    feedback.professional_answers = answers
+    feedback.save(update_fields=["professional_answers"])
+    return feedback
+
+
+@login_required
+def interview_report(request, session_id):
+    session = (
+        InterviewSession.objects.select_related("resume")
+        .filter(id=session_id, user=request.user)
+        .prefetch_related("questions__answer")
+        .first()
+    )
+    if session is None:
+        return HttpResponse("Interview report not found.", status=404)
+    feedback = InterviewFeedback.objects.filter(session=session).first()
+    if session.status != "completed" or feedback is None:
+        messages.info(request, "Complete the interview to view its report.")
+        return redirect("ai_interview")
+    feedback = _professional_answer_key_for_session(session, feedback)
+    answer_by_order = {
+        int(item.get("order")): item
+        for item in (feedback.professional_answers or [])
+        if isinstance(item, dict) and str(item.get("order", "")).isdigit()
+    }
+    report_questions = []
+    for question in session.questions.all():
+        candidate = getattr(question, "answer", None)
+        model_answer = answer_by_order.get(question.order, {})
+        report_questions.append(
+            {
+                "order": question.order,
+                "question": question.question_text,
+                "category": question.category,
+                "evidence": question.source_evidence,
+                "answer_en": model_answer.get("answer_en", "Professional answer unavailable."),
+                "answer_hi": model_answer.get("answer_hi", "इस प्रश्न के लिए professional answer उपलब्ध नहीं है।"),
+                "candidate_answer": candidate.answer_text if candidate else "",
+                "candidate_score": candidate.overall_score if candidate else None,
+            }
+        )
+    return render(
+        request,
+        "users/interview_report.html",
+        {
+            "session": session,
+            "feedback": feedback,
+            "report_questions": report_questions,
+            "pdf_url": reverse("interview_report_pdf", args=[session.id]),
+        },
+    )
+
+
+@login_required
+def interview_report_pdf(request, session_id):
+    session = (
+        InterviewSession.objects.select_related("resume")
+        .filter(id=session_id, user=request.user)
+        .prefetch_related("questions__answer")
+        .first()
+    )
+    if session is None:
+        return HttpResponse("Interview report not found.", status=404)
+    feedback = InterviewFeedback.objects.filter(session=session).first()
+    if session.status != "completed" or feedback is None:
+        return HttpResponse("Complete the interview before downloading its report.", status=400)
+    _professional_answer_key_for_session(session, feedback)
+    try:
+        pdf_bytes = build_interview_report_pdf(session)
+    except RuntimeError as exc:
+        return HttpResponse(str(exc), status=503)
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="careerai_interview_report_{session.id}.pdf"'
+    return response
 
 
 @login_required

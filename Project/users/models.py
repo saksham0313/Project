@@ -178,6 +178,9 @@ class InterviewFeedback(models.Model):
     strengths = models.JSONField(default=list, blank=True)
     weaknesses = models.JSONField(default=list, blank=True)
     recommendations = models.JSONField(default=list, blank=True)
+    # Stored once when an interview is completed so the report page and PDF
+    # always show the same professional bilingual answer key.
+    professional_answers = models.JSONField(default=list, blank=True)
     generated_by = models.CharField(max_length=20, default="local")
     created_at = models.DateTimeField(auto_now=True)
 

@@ -136,6 +136,15 @@
                 </div>
 
 
+                {% if messages %}
+                    <div class="auth-messages" role="status">
+                        {% for message in messages %}
+                            <p class="auth-message {{ message.tags }}">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+
                 <!-- Login Form -->
                 <form method="POST">
 
@@ -179,6 +188,13 @@
                     </button>
 
                 </form>
+
+
+                <div class="forgot-link">
+                    <a href="{% url 'forgot_password' %}">
+                        Forgot password?
+                    </a>
+                </div>
 
 
                 <!-- Register Link -->

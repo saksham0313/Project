@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Report | CareerAI</title>
+    <link rel="stylesheet" href="{% static 'users/interview_report.css' %}">
+</head>
+<body>
+    <div class="report-shell">
+        <header class="report-topbar">
+            <a class="report-brand" href="{% url 'dashboard' %}">
+                <span class="brand-mark">AI</span>
+                <span><strong>Career<span>AI</span></strong><small>Interview report</small></span>
+            </a>
+            <div class="top-actions">
+                <a class="outline-btn" href="{% url 'ai_interview' %}">New interview</a>
+                <a class="primary-btn" href="{{ pdf_url }}">Download PDF <span>↓</span></a>
+            </div>
+        </header>
+
+        <main>
+            <section class="report-hero">
+                <div>
+                    <span class="eyebrow">✦ COMPLETED INTERVIEW</span>
+                    <h1>{{ session.role }}<br><span>answer review.</span></h1>
+                    <p>{{ session.difficulty|title }} · {{ session.interview_type|title }} · {{ report_questions|length }} questions · {{ session.completed_at|date:"d M Y, H:i" }}</p>
+                </div>
+                <div class="score-card">
+                    <span>OVERALL SCORE</span>
+                    <strong>{{ session.overall_score|floatformat:1 }}</strong>
+                    <small>/ 100</small>
+                </div>
+            </section>
+
+            <section class="summary-grid">
+                <article class="summary-card green">
+                    <div class="summary-icon">✓</div><h2>Strengths</h2>
+                    <ul>{% for item in feedback.strengths %}<li>{{ item }}</li>{% empty %}<li>Keep building specific examples.</li>{% endfor %}</ul>
+                </article>
+                <article class="summary-card orange">
+                    <div class="summary-icon">↗</div><h2>Focus areas</h2>
+                    <ul>{% for item in feedback.weaknesses %}<li>{{ item }}</li>{% empty %}<li>No major weakness recorded.</li>{% endfor %}</ul>
+                </article>
+                <article class="summary-card purple">
+                    <div class="summary-icon">★</div><h2>Next steps</h2>
+                    <ul>{% for item in feedback.recommendations %}<li>{{ item }}</li>{% empty %}<li>Practise another resume-grounded interview.</li>{% endfor %}</ul>
+                </article>
+            </section>
+
+            <section class="answer-intro">
+                <div><span class="eyebrow">PROFESSIONAL ANSWER KEY</span><h2>Learn how to answer every question.</h2><p>Each sample is grounded in the resume used for this interview. Read the English answer first, then practise the Hindi version aloud.</p></div>
+                <a class="primary-btn" href="{{ pdf_url }}">Download full PDF <span>↓</span></a>
+            </section>
+
+            <section class="answers-list">
+                {% for item in report_questions %}
+                    <article class="answer-card">
+                        <div class="answer-meta"><span class="question-number">Q{{ item.order }}</span><span class="category-pill">{{ item.category }}</span></div>
+                        <h3>{{ item.question }}</h3>
+                        {% if item.evidence %}<p class="evidence"><strong>Resume evidence:</strong> {{ item.evidence }}</p>{% endif %}
+                        <div class="dual-answer-grid">
+                            <div class="answer-panel english"><h4>Professional answer · English</h4><p>{{ item.answer_en }}</p></div>
+                            <div class="answer-panel hindi"><h4>Professional answer · हिन्दी</h4><p>{{ item.answer_hi }}</p></div>
+                        </div>
+                        {% if item.candidate_answer %}
+                            <details class="candidate-answer">
+                                <summary>Your submitted answer{% if item.candidate_score is not None %} · {{ item.candidate_score|floatformat:1 }}/100{% endif %}</summary>
+                                <p>{{ item.candidate_answer }}</p>
+                            </details>
+                        {% endif %}
+                    </article>
+                {% empty %}
+                    <div class="empty-state">No questions were saved for this interview.</div>
+                {% endfor %}
+            </section>
+        </main>
+
+        <footer>© 2026 CareerAI · Model answers are for practice and should be personalised with your verified experience.</footer>
+    </div>
+</body>
+</html>

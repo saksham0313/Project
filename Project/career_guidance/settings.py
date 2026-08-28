@@ -23,6 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 if load_dotenv:
     load_dotenv(BASE_DIR.parent / ".env")
+    # Also support a .env placed beside manage.py, which is the usual layout
+    # when this project is copied out of the repository.
+    load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -148,6 +151,26 @@ MEDIA_ROOT = BASE_DIR / "media"
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/login/"
+
+# Password-reset email. With no SMTP credentials the console backend keeps
+# local development free: the OTP is printed in the server terminal. For a
+# real inbox, set the Gmail SMTP values in .env (use a Gmail App Password).
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend"
+    if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD
+    else "django.core.mail.backends.console.EmailBackend",
+)
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "true").lower() in {"1", "true", "yes", "on"}
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "").strip() or EMAIL_HOST_USER or "no-reply@careerai.local"
+PASSWORD_RESET_OTP_EXPIRY_SECONDS = int(os.getenv("PASSWORD_RESET_OTP_EXPIRY_SECONDS", "600"))
+PASSWORD_RESET_MAX_ATTEMPTS = int(os.getenv("PASSWORD_RESET_MAX_ATTEMPTS", "5"))
+PASSWORD_RESET_RESEND_COOLDOWN_SECONDS = int(os.getenv("PASSWORD_RESET_RESEND_COOLDOWN_SECONDS", "30"))
+REPORT_PDF_FONT_PATH = os.getenv("REPORT_PDF_FONT_PATH", "").strip()
 
 # The interview remains usable without any external service. These values only
 # enable the optional provider adapter when the user explicitly configures it.
