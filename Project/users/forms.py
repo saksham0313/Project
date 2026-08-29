@@ -5,6 +5,10 @@ from .models import Student
 
 class RegisterForm(forms.ModelForm):
 
+    # Password recovery is email-based, so every newly-created account must
+    # provide a usable and unambiguous address.
+    email = forms.EmailField(required=True)
+
     password = forms.CharField(
         widget=forms.PasswordInput
     )
@@ -18,6 +22,12 @@ class RegisterForm(forms.ModelForm):
             "email",
             "password"
         ]
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip().lower()
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("An account with this email already exists.")
+        return email
 
 
 

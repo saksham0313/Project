@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.sessions.models import Session
 
 from .forms import RegisterForm
 
@@ -17,6 +18,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
+from django.core.validators import validate_email
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -105,7 +107,17 @@ def settings_page(request):
         email = request.POST.get(
             "email",
             ""
-        ).strip()
+        ).strip().lower()
+
+        if email:
+            try:
+                validate_email(email)
+            except ValidationError:
+                messages.error(request, "Enter a valid email address.")
+                return redirect("settings")
+            if User.objects.filter(email__iexact=email).exclude(pk=request.user.pk).exists():
+                messages.error(request, "That email address is already linked to another account.")
+                return redirect("settings")
 
 
         # Save profile information
@@ -288,7 +300,33 @@ def _password_reset_user(request):
     email = str(request.session.get("password_reset_email", "")).strip().lower()
     if not email:
         return None
-    return User.objects.filter(email__iexact=email, is_active=True).order_by("id").first()
+    matches = list(User.objects.filter(email__iexact=email, is_active=True).order_by("id")[:2])
+    # An address must map to exactly one active account before it can reset a
+    # password.  This prevents an old duplicate-email record from resetting
+    # the wrong user.
+    return matches[0] if len(matches) == 1 else None
+
+
+def _invalidate_user_sessions(user):
+    """Sign out every existing browser session for a user after a reset.
+
+    Django password hashes stop the old password from authenticating, but a
+    browser that was already signed in can otherwise keep using its existing
+    session.  Removing those sessions makes the reset behaviour unambiguous
+    and is the safer recovery policy.
+    """
+
+    user_id = str(user.pk)
+    sessions = Session.objects.filter(expire_date__gt=timezone.now())
+    for session in sessions.iterator():
+        try:
+            session_data = session.get_decoded()
+        except (KeyError, TypeError, ValueError):
+            # Ignore malformed/stale rows rather than breaking a password
+            # reset for the account being recovered.
+            continue
+        if str(session_data.get("_auth_user_id", "")) == user_id:
+            session.delete()
 
 
 def _password_reset_expired(request, timestamp_key="password_reset_sent_at"):
@@ -366,12 +404,23 @@ def forgot_password(request):
         if not email:
             return render(request, "users/forgot_password.html", {"error": "Enter your registered email address."})
 
-        user = User.objects.filter(email__iexact=email, is_active=True).order_by("id").first()
+        matches = list(User.objects.filter(email__iexact=email, is_active=True).order_by("id")[:2])
+        user = matches[0] if len(matches) == 1 else None
         if user is None or not user.email:
+            # Do not disclose whether an email is registered.  The same
+            # neutral wording is used by production password-recovery flows
+            # to prevent account-enumeration attacks.
             return render(
                 request,
                 "users/forgot_password.html",
-                {"error": "No active account was found with this email address.", "email": email},
+                {
+                    "notice": (
+                        "If an active CareerAI account matches this email, "
+                        "a password-reset OTP has been sent. Check your inbox "
+                        "or verify the address and try again."
+                    ),
+                    "email": email,
+                },
             )
 
         if not _send_password_reset_otp(request, user):
@@ -481,6 +530,12 @@ def password_reset_new(request):
         if not errors:
             user.set_password(password)
             user.save(update_fields=["password"])
+            # Flush this request first when a user started recovery from an
+            # already-authenticated browser, then remove every other active
+            # session for the account.  The old password and old sessions
+            # must both stop working after a successful reset.
+            _invalidate_user_sessions(user)
+            logout(request)
             _clear_password_reset_session(request)
             messages.success(request, "Password changed successfully. Sign in with your new password.")
             return redirect("login")
@@ -544,16 +599,12 @@ def user_login(request):
 
     if request.method == "POST":
 
-        username = request.POST["username"]
+        # `.get()` keeps malformed/partial requests on the normal login page
+        # instead of turning them into a server error.
+        username = str(request.POST.get("username", "")).strip()
+        password = request.POST.get("password", "")
 
-        password = request.POST["password"]
-
-
-        user = authenticate(
-            request,
-            username=username,
-            password=password
-        )
+        user = authenticate(request, username=username, password=password) if username and password else None
 
 
         if user:
@@ -615,6 +666,105 @@ def dashboard(request):
             "average_score": average_score,
             "progress_label": progress_label,
         }
+    )
+
+
+@login_required
+def performance_page(request):
+    """Show private interview performance analytics for the signed-in user."""
+
+    completed_sessions = list(
+        InterviewSession.objects.filter(
+            user=request.user,
+            status="completed",
+        )
+        .exclude(overall_score__isnull=True)
+        .order_by("-completed_at", "-started_at")
+        .prefetch_related("questions__answer")
+    )
+
+    scores = []
+    for session in completed_sessions:
+        try:
+            score = max(0.0, min(100.0, float(session.overall_score)))
+        except (TypeError, ValueError):
+            continue
+        scores.append(score)
+
+    average_score = round(sum(scores) / len(scores), 1) if scores else None
+    best_score = round(max(scores), 1) if scores else None
+    latest_score = round(scores[0], 1) if scores else None
+    improvement_delta = None
+    if len(scores) >= 2:
+        improvement_delta = round(scores[0] - scores[1], 1)
+
+    answer_rows = list(
+        InterviewAnswer.objects.filter(
+            question__session__user=request.user,
+            question__session__status="completed",
+            question__session__overall_score__isnull=False,
+        )
+        .select_related("question")
+    )
+    category_totals = {}
+    for answer in answer_rows:
+        category = (answer.question.category or "General").strip() or "General"
+        try:
+            score = max(0.0, min(100.0, float(answer.overall_score)))
+        except (TypeError, ValueError):
+            score = 0.0
+        total, count = category_totals.get(category, (0.0, 0))
+        category_totals[category] = (total + score, count + 1)
+
+    category_rows = []
+    for category, (total, count) in sorted(
+        category_totals.items(),
+        key=lambda item: (-(item[1][0] / item[1][1]), item[0].casefold()),
+    ):
+        category_score = round(total / count, 1)
+        category_rows.append(
+            {
+                "name": category,
+                "score": category_score,
+                "count": count,
+                "width": max(4, min(100, round(category_score))),
+            }
+        )
+
+    trend = []
+    for session in reversed(completed_sessions[:12]):
+        try:
+            score = max(0.0, min(100.0, float(session.overall_score)))
+        except (TypeError, ValueError):
+            continue
+        trend.append(
+            {
+                "session": session,
+                "score": round(score, 1),
+                "height": max(8, min(100, round(score))),
+            }
+        )
+
+    total_questions = sum(len(session.questions.all()) for session in completed_sessions)
+    questions_answered = len(answer_rows)
+    completion_rate = round((questions_answered / total_questions) * 100) if total_questions else 0
+
+    return render(
+        request,
+        "users/performance.html",
+        {
+            "completed_count": len(completed_sessions),
+            "average_score": average_score,
+            "best_score": best_score,
+            "latest_score": latest_score,
+            "improvement_delta": improvement_delta,
+            "category_rows": category_rows[:8],
+            "trend": trend,
+            "recent_sessions": completed_sessions[:8],
+            "questions_answered": questions_answered,
+            "total_questions": total_questions,
+            "completion_rate": completion_rate,
+        },
     )
 
 

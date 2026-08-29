@@ -16,6 +16,7 @@ urlpatterns = [
     path("forgot-password/new/", views.password_reset_new, name="password_reset_new"),
     path("logout/", views.user_logout, name="logout"),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path("performance/", views.performance_page, name="performance"),
     path("career-guidance/", views.career_guidance_page, name="career_guidance"),
     path("upload/", views.upload_resume, name="upload_resume"),
     path("ai-interview/", views.ai_interview_page, name="ai_interview"),

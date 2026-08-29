@@ -662,7 +662,9 @@ def _provider_json(prompt: str) -> Any:
         model = getattr(settings, "GEMINI_MODEL", "gemini-2.5-flash")
         if not key:
             raise ValueError("GEMINI_API_KEY is not configured")
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
+        # Keep the API key out of the request URL, where reverse proxies and
+        # access logs can accidentally record it.
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"responseMimeType": "application/json"},
@@ -670,7 +672,7 @@ def _provider_json(prompt: str) -> Any:
         request = urllib.request.Request(
             url,
             data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
+            headers={"Content-Type": "application/json", "x-goog-api-key": key},
             method="POST",
         )
         with urllib.request.urlopen(request, timeout=timeout) as response:

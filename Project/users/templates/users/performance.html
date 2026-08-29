@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance | CareerAI</title>
+    <link rel="stylesheet" href="{% static 'users/performance.css' %}">
+</head>
+<body>
+<div class="performance-page">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">AI</div>
+            <div><h2>Career<span>AI</span></h2><p>Career Guidance</p></div>
+        </div>
+        <nav class="navigation" aria-label="Primary navigation">
+            <a href="{% url 'dashboard' %}" class="nav-item"><span>⌂</span>Dashboard</a>
+            <a href="{% url 'upload_resume' %}" class="nav-item"><span>📄</span>Resume</a>
+            <a href="{% url 'ai_interview' %}" class="nav-item"><span>🎤</span>AI Interview</a>
+            <a href="{% url 'performance' %}" class="nav-item active" aria-current="page"><span>📊</span>Performance</a>
+            <a href="{% url 'career_guidance' %}" class="nav-item"><span>💡</span>Career Guidance</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="{% url 'settings' %}" class="nav-item"><span>⚙</span>Settings</a>
+            <a href="{% url 'logout' %}" class="logout"><span>↪</span>Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="welcome-small">YOUR INTERVIEW SIGNALS</p>
+                <h1>Performance</h1>
+            </div>
+            <div class="profile">
+                <div class="avatar">{{ request.user.username|first|upper }}</div>
+                <div class="profile-info"><strong>{{ request.user.username }}</strong><span>Career Explorer</span></div>
+            </div>
+        </header>
+
+        <section class="performance-hero">
+            <div class="hero-copy">
+                <span class="hero-badge">✦ PRIVATE PROGRESS SPACE</span>
+                <h2>Turn every practice round into a sharper answer.</h2>
+                <p>Your scores are calculated from completed AI interviews linked to your account. Use the trend to choose what to practise next.</p>
+                <a class="primary-btn" href="{% url 'ai_interview' %}">Start another interview <span>→</span></a>
+            </div>
+            <div class="hero-score">
+                <span>LATEST SCORE</span>
+                {% if latest_score is not None %}<strong>{{ latest_score|floatformat:1 }}</strong><small>/ 100</small>{% else %}<strong>--</strong><small>Complete an interview</small>{% endif %}
+                {% if improvement_delta is not None %}
+                    <em class="{% if improvement_delta >= 0 %}up{% else %}down{% endif %}">{% if improvement_delta >= 0 %}↗{% else %}↘{% endif %} {{ improvement_delta|floatformat:1 }} vs previous</em>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="stats-grid" aria-label="Performance summary">
+            <article class="stat-card"><span class="stat-icon purple">◎</span><div><small>Completed interviews</small><strong>{{ completed_count }}</strong></div></article>
+            <article class="stat-card"><span class="stat-icon blue">⌁</span><div><small>Average score</small><strong>{% if average_score is not None %}{{ average_score|floatformat:1 }}{% else %}--{% endif %}</strong></div></article>
+            <article class="stat-card"><span class="stat-icon gold">★</span><div><small>Best score</small><strong>{% if best_score is not None %}{{ best_score|floatformat:1 }}{% else %}--{% endif %}</strong></div></article>
+            <article class="stat-card"><span class="stat-icon green">✓</span><div><small>Questions answered</small><strong>{{ questions_answered }}</strong><small class="stat-sub">{{ completion_rate }}% of saved questions</small></div></article>
+        </section>
+
+        <section class="analytics-grid">
+            <article class="panel trend-panel">
+                <div class="panel-heading"><div><span class="panel-label">SCORE MOVEMENT</span><h3>Interview trend</h3><p>Older sessions are on the left.</p></div><span class="panel-mark">12</span></div>
+                {% if trend %}
+                    <div class="chart" role="img" aria-label="Score trend across completed interviews">
+                        {% for point in trend %}
+                            <div class="bar-column">
+                                <div class="bar-value">{{ point.score|floatformat:0 }}</div>
+                                <div class="bar-track"><div class="bar" style="height: {{ point.height }}%;"></div></div>
+                                <span>{% if point.session.completed_at %}{{ point.session.completed_at|date:"d M" }}{% else %}{{ point.session.started_at|date:"d M" }}{% endif %}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-inline"><span>↗</span><p>Complete your first interview to see a score trend here.</p></div>
+                {% endif %}
+            </article>
+
+            <article class="panel category-panel">
+                <div class="panel-heading"><div><span class="panel-label">ANSWER QUALITY</span><h3>Category strengths</h3><p>Average score by question category.</p></div><span class="panel-mark">%</span></div>
+                {% if category_rows %}
+                    <div class="category-list">
+                        {% for row in category_rows %}
+                            <div class="category-row"><div class="category-top"><strong>{{ row.name }}</strong><span>{{ row.score|floatformat:1 }}</span></div><div class="category-track"><i style="width: {{ row.width }}%;"></i></div><small>{{ row.count }} answer{{ row.count|pluralize }}</small></div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-inline"><span>✦</span><p>Category insights appear after you submit interview answers.</p></div>
+                {% endif %}
+            </article>
+        </section>
+
+        <section class="lower-grid">
+            <article class="panel recent-panel">
+                <div class="panel-heading"><div><span class="panel-label">YOUR HISTORY</span><h3>Recent interviews</h3><p>Only your completed sessions are shown.</p></div><a class="text-link" href="{% url 'ai_interview' %}">Practise →</a></div>
+                {% if recent_sessions %}
+                    <div class="recent-list">
+                        {% for session in recent_sessions %}
+                            <a class="recent-row" href="{% url 'interview_report' session.id %}">
+                                <span class="recent-icon">🎤</span><span class="recent-copy"><strong>{{ session.role|truncatechars:30 }}</strong><small>{{ session.difficulty|title }} · {{ session.question_count }} questions · {% if session.completed_at %}{{ session.completed_at|date:"d M Y" }}{% else %}{{ session.started_at|date:"d M Y" }}{% endif %}</small></span><b>{{ session.overall_score|floatformat:1 }}</b><span class="recent-arrow">→</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-history"><span>◎</span><h4>No completed interviews yet</h4><p>Start a resume-grounded interview and your results will be saved here.</p><a class="secondary-btn" href="{% url 'ai_interview' %}">Open AI Interview</a></div>
+                {% endif %}
+            </article>
+
+            <article class="practice-card">
+                <span class="practice-kicker">NEXT BEST MOVE</span>
+                <h3>Build a stronger baseline.</h3>
+                <p>Answer every question with a specific situation, action, and measurable result. Then compare your next score with this page.</p>
+                <div class="practice-points"><span>01</span><p>Use your real resume evidence.</p><span>02</span><p>Keep the answer structured and concise.</p><span>03</span><p>Review your bilingual answer key.</p></div>
+                <a href="{% url 'career_guidance' %}" class="practice-link">Open career guidance <span>↗</span></a>
+            </article>
+        </section>
+
+        <footer>© 2026 CareerAI · Practice with evidence, improve with intent</footer>
+    </main>
+</div>
+</body>
+</html>
