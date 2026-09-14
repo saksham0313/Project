@@ -1,0 +1,63 @@
+services:
+  - type: web
+    name: careerai
+    runtime: python
+    plan: free
+    rootDir: Project
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: python manage.py migrate && gunicorn career_guidance.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.7
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: .onrender.com
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: https://*.onrender.com
+      - key: SECURE_SSL_REDIRECT
+        value: "true"
+      - key: AI_PROVIDER
+        value: gemini
+      - key: ENABLE_AI
+        value: "true"
+      - key: AI_TIMEOUT_SECONDS
+        value: "20"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: OPENAI_MODEL
+        value: openrouter/free
+      - key: OPENROUTER_HTTP_REFERER
+        value: https://careerai.onrender.com
+      - key: OPENROUTER_TITLE
+        value: CareerAI Resume Interview
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.console.EmailBackend
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USE_TLS
+        value: "true"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        value: no-reply@careerai.local
+      - key: PASSWORD_RESET_OTP_EXPIRY_SECONDS
+        value: "600"
+      - key: PASSWORD_RESET_MAX_ATTEMPTS
+        value: "5"
+      - key: PASSWORD_RESET_RESEND_COOLDOWN_SECONDS
+        value: "30"
+      - key: RESUME_MAX_SIZE
+        value: "10485760"
